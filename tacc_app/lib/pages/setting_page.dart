@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:tacc_app/widgets/destination_card.dart';
 import 'package:tacc_app/widgets/arrival_buffer_card.dart';
 import 'package:tacc_app/widgets/runtime_card.dart';
-import 'package:tacc_app/widgets/save_button.dart';
+import 'package:tacc_app/widgets/settings_save_button.dart';
 import 'package:tacc_app/widgets/sign_out_button.dart';
 import 'package:tacc_app/widgets/delete_account_button.dart';
 
@@ -13,39 +16,119 @@ class SettingPage extends StatefulWidget {
   State<StatefulWidget> createState() => _SettingPageState();
 }
 
-class _SettingPageState extends State<SettingPage>{
+Future<UserInfo> fetchUserInfo() async {
+  final response = await http.get(Uri.parse(
+      'http://10.0.2.2:8080/api/user/8a61a7d6-52d1-4dd7-9c60-1f5e08edc28b'));
+
+  if (response.statusCode == 200) {
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    return UserInfo.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load user info');
+  }
+}
+
+class UserInfo {
+  final String id;
+  final String email;
+  final int noDestMinutes;
+  final int ccRuntimeMinutes;
+  final int arrivalBufferMinutes;
+  final String? activeCalendarConnectionType;
+  final String? activeTeslaConnectionType;
+
+  const UserInfo({
+    required this.id,
+    required this.email,
+    required this.noDestMinutes,
+    required this.ccRuntimeMinutes,
+    required this.arrivalBufferMinutes,
+    this.activeCalendarConnectionType,
+    this.activeTeslaConnectionType,
+  });
+
+  factory UserInfo.fromJson(Map<String, dynamic> json) {
+      return UserInfo(
+      id: json['id'] as String,
+      email: json['email'] as String,
+      noDestMinutes: json['noDestMinutes'] as int,
+      ccRuntimeMinutes: json['ccRuntimeMinutes'] as int,
+      arrivalBufferMinutes: json['arrivalBufferMinutes'] as int,
+      activeCalendarConnectionType: json['activeCalendarConnectionType'] as String?,
+      activeTeslaConnectionType: json['activeTeslaConnectionType'] as String?,
+      );
+    }
+  }
+
+
+class _SettingPageState extends State<SettingPage> {
+  late Future<UserInfo> userInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    userInfo = fetchUserInfo();
+  }
+
   ValueNotifier destTime = ValueNotifier(0);
   ValueNotifier runTime = ValueNotifier(0);
   ValueNotifier bufferTime = ValueNotifier(0);
 
-  void changeState(){
-    setState(() {
-      
-    });
+  void changeState() {
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.075),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Settings", style: TextStyle(color: Color(0xFFFBFCFE), fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Ubuntu')),
-            DestinationCard(destTime),
-            RuntimeCard(runTime),
-            ArrivalBufferCard(bufferTime),
-            const SaveButton(),
-            const SizedBox(height:  50),
-            const Text("Account", style: TextStyle(color: Color(0xFFFBFCFE), fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Ubuntu')),
-            const SignOutButton(),
-            const DeleteAccountButton(),
-          ],
-        )
-      ),
-    );
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        body: Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.075),
+          child: FutureBuilder<UserInfo>(
+              future: userInfo,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (snapshot.hasData) {
+                  // Initialize ValueNotifiers with API data
+                  destTime.value = snapshot.data!.noDestMinutes;
+                  runTime.value = snapshot.data!.ccRuntimeMinutes;
+                  bufferTime.value = snapshot.data!.arrivalBufferMinutes;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("Settings",
+                          style: TextStyle(
+                              color: Color(0xFFFBFCFE),
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Ubuntu')),
+                      DestinationCard(destTime),
+                      RuntimeCard(runTime),
+                      ArrivalBufferCard(bufferTime),
+                      SaveButton(destTime, runTime, bufferTime),
+                      const SizedBox(height: 50),
+                      const Text("Account",
+                          style: TextStyle(
+                              color: Color(0xFFFBFCFE),
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Ubuntu')),
+                      const SignOutButton(),
+                      const DeleteAccountButton(),
+                    ],
+                  );
+                } else {
+                  return const Center(child: Text('No data available'));
+                }
+              }),
+        ));
   }
 }

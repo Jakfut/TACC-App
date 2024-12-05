@@ -40,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0; 
   var isVisible = false;
   var appBar = true;
+  var UUID = "8a61a7d6-52d1-4dd7-9c60-1f5e08edc28b";
 
   void changeState(){
     setState(() {
