@@ -10,7 +10,7 @@ class APISelect extends StatefulWidget {
 class _APISelectState extends State<APISelect> {
   String? selectedItem = "Tessie";
 
-  final List<String> _options = ['Tessie', 'TeslaAPI'];
+  final List<String> _options = ['Tessie'];
 
   @override
   Widget build(BuildContext context) {

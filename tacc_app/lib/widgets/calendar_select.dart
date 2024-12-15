@@ -10,7 +10,7 @@ class CalendarSelect extends StatefulWidget {
 class _CalendarSelectState extends State<CalendarSelect> {
   String? selectedItem = "Google Calendar";
 
-  final List<String> _options = ['Google Calendar', 'Untis'];
+  final List<String> _options = ['Google Calendar'];
 
   @override
   Widget build(BuildContext context) {
