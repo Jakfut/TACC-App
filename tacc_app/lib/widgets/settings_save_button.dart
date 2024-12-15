@@ -6,7 +6,8 @@ class SaveButton extends StatefulWidget {
   final ValueNotifier destTimeNotifier;
   final ValueNotifier runTimeNotifier;
   final ValueNotifier bufferTimeNotifier;
-  const SaveButton(this.destTimeNotifier, this.runTimeNotifier, this.bufferTimeNotifier, {super.key,});
+  final String userId;
+  const SaveButton(this.destTimeNotifier, this.runTimeNotifier, this.bufferTimeNotifier, this.userId, {super.key,});
   @override
   State<StatefulWidget> createState() => _SaveButtonState();
 }
@@ -20,7 +21,7 @@ class _SaveButtonState extends State<SaveButton> {
       'noDestMinutes': widget.destTimeNotifier.value,
     };
 
-    final Uri apiUrl = Uri.parse('http://10.0.2.2:8080/api/user/8a61a7d6-52d1-4dd7-9c60-1f5e08edc28b/default-values'); // Update the API endpoint if needed
+    final Uri apiUrl = Uri.parse('http://10.0.2.2:8080/api/user/${widget.userId}/default-values'); // Update the API endpoint if needed
 
     try {
       final response = await http.patch(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ClimateCard extends StatefulWidget {
   const ClimateCard({super.key,});
@@ -8,38 +10,49 @@ class ClimateCard extends StatefulWidget {
 }
 
 class _ClimateCardState extends State<ClimateCard>{
-  var cstatusText = "";
-  var cstatusColor = Colors.white;
-  var cstatus = 0;
-  var bText = "";
+  var cstatusText = "Loading ...";
+  var cstatusColor = Color(0xFFD4A45A);
+  var bText = "...";
+
+  var climate = false;
+  final String userId = "8a61a7d6-52d1-4dd7-9c60-1f5e08edc28b";
+
+  @override
+  void initState() {
+    super.initState();
+    fetchInfo();
+  }
+
+  Future<void> fetchInfo() async {
+    final response = await http.get(Uri.parse(
+        'http://10.0.2.2:8080/api/user/$userId/tesla/climate/state'));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        climate = jsonDecode(response.body) as bool;
+        if(climate){
+          cstatusText = "Active";
+          cstatusColor = const Color(0xFF66B58C);
+          bText = "Turn off";
+        }else{
+          cstatusText = "Inactive";
+          cstatusColor = const Color(0xFFD55A5A);
+          bText = "Turn on";
+        }
+      });
+    } else {
+      throw Exception('Failed to load tesla availability');
+    }
+  }
 
   void changeState(){
     setState(() {
-      if(cstatus == 1){
-        cstatus = 2;
-      }else if(cstatus ==2 ){
-        cstatus = 1;
-      }
+
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
-    if (cstatus == 0) {
-      cstatusText = "Loading ...";
-      cstatusColor = const Color(0xFFD4A45A);
-      bText = "...";
-    } else if (cstatus == 1) {
-      cstatusText = "Active";
-      cstatusColor = const Color(0xFF66B58C);
-      bText = "Turn off";
-    } else if (cstatus == 2) {
-      cstatusText = "Inactive";
-      cstatusColor = const Color(0xFFD55A5A);
-      bText = "Turn on";
-    }
-
     return Card(
       elevation: 5,
       color: Theme.of(context).colorScheme.secondary,
