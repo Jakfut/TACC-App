@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF24293E),
           primary: const Color(0xFF24293E),
-          secondary: const Color(0xFF2F3855),
+          secondary:const Color(0xFF2F3855),
           surface:  const Color(0xFF181C2A),
         ),
       ),

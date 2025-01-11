@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;  
 
-class DeactivateButton extends StatefulWidget {
+class ActivateButton extends StatefulWidget {
   final String userId;
-  const DeactivateButton(this.userId, {super.key});
+  final ValueNotifier connectedValueNotifier;
+  const ActivateButton(this.userId, this.connectedValueNotifier, {super.key});
 
   @override
-  State<StatefulWidget> createState() => _DeactivateButtonState();
+  State<StatefulWidget> createState() => _ActivateButtonState();
 }
 
-class _DeactivateButtonState extends State<DeactivateButton> {
+class _ActivateButtonState extends State<ActivateButton> {
 
-  Future<void> deactivateConnection() async {
-    final Uri apiUrl = Uri.parse('http://10.0.2.2:8080/api/user/${widget.userId}/tesla-connections/deactivate');
+  Future<void> activateConnection() async {
+    final Uri apiUrl = Uri.parse('http://10.0.2.2:8080/api/user/${widget.userId}/tesla-connections/tessie/activate');
 
     try {
       final response = await http.patch(
@@ -23,13 +24,13 @@ class _DeactivateButtonState extends State<DeactivateButton> {
       );
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Successfully disconnectet!')),
-        );
+       /* ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Successfully connectet!')),
+        );*/
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save data. Status code: ${response.statusCode}')),
-        );
+        /*ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to connect. Status code: ${response.statusCode}')),
+        );*/
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -40,6 +41,9 @@ class _DeactivateButtonState extends State<DeactivateButton> {
 
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: widget.connectedValueNotifier,
+      builder: (context, timeValue, _) {
     return SizedBox(
       width: double.infinity, 
       child: ElevatedButton(
@@ -50,10 +54,11 @@ class _DeactivateButtonState extends State<DeactivateButton> {
           ),
         ),
         onPressed: () {
-          deactivateConnection();
+          activateConnection();
+          widget.connectedValueNotifier.value = true;
         },
         child: const Text(
-          "Deactivate",
+          "Activate",
           style: TextStyle(
             color: Color(0xFF8EBBFF),
             fontSize: 16,
@@ -62,6 +67,8 @@ class _DeactivateButtonState extends State<DeactivateButton> {
           ),
         ),
       ),
+    );
+    },
     );
   }
 }

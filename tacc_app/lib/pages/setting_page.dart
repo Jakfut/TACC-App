@@ -21,12 +21,8 @@ Future<UserInfo> fetchUserInfo(String userId) async {
       'http://10.0.2.2:8080/api/user/${userId}'));
 
   if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
     return UserInfo.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
     throw Exception('Failed to load user info');
   }
 }
@@ -97,7 +93,6 @@ class _SettingPageState extends State<SettingPage> {
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else if (snapshot.hasData) {
-                  // Initialize ValueNotifiers with API data
                   destTime.value = snapshot.data!.noDestMinutes;
                   runTime.value = snapshot.data!.ccRuntimeMinutes;
                   bufferTime.value = snapshot.data!.arrivalBufferMinutes;

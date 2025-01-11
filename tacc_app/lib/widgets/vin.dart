@@ -33,7 +33,7 @@ class _VINState extends State<VIN> {
                   fontSize: 16,
                   fontFamily: 'Inter',
                 ),
-                hintText: /*vin  != "" ? "Access Token($vin)" : */"Access Token",
+                hintText: /*vin  != "" ? "Vin($vin)" : */"vin",
               ),
               onChanged: (newValue) {
                 setState(() {

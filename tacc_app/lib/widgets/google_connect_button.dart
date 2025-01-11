@@ -1,32 +1,27 @@
 import 'package:flutter/material.dart';
 
-class ActivateButton extends StatefulWidget {
-  const ActivateButton({super.key});
+class ConnectButton extends StatefulWidget {
+  const ConnectButton({super.key});
 
   @override
-  State<StatefulWidget> createState() => _ActivateButtonState();
+  State<StatefulWidget> createState() => _ConnectButtonState();
 }
 
-class _ActivateButtonState extends State<ActivateButton> {
-
+class _ConnectButtonState extends State<ConnectButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity, 
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).primaryColor,
-          side: const BorderSide(
-            color: Color(0xFF8EBBFF),
-          ),
+          backgroundColor: const Color(0xFF8EBBFF),
         ),
         onPressed: () {
 
         },
         child: const Text(
-          "Activate",
+          "Connect to Google Calendar",
           style: TextStyle(
-            color: Color(0xFF8EBBFF),
             fontSize: 16,
             fontFamily: 'Inter',
             fontWeight: FontWeight.bold,
