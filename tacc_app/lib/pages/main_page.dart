@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tacc_app/widgets/climate_card.dart';
-import 'package:tacc_app/widgets/list_card.dart';
 import 'package:tacc_app/widgets/location_card.dart';
 import 'package:tacc_app/widgets/tesla_status.dart';
 import 'package:tacc_app/widgets/upcoming_activations.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -47,7 +45,9 @@ class _MainPageState extends State<MainPage> {
             ClimateCard(),
             SizedBox(height:  50),
             Text("Upcoming Activations", style: TextStyle(color: Color(0xFFFBFCFE), fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Ubuntu')),
-            //UpcomingActivations(),
+            Expanded(
+            child: UpcomingActivations(), 
+          ),
           ],
         )
       ),

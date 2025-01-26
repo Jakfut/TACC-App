@@ -3,14 +3,16 @@ import 'package:tacc_app/pages/calendar_setting_page.dart';
 import 'package:tacc_app/pages/main_page.dart';
 import 'package:tacc_app/pages/setting_page.dart';
 import 'package:tacc_app/pages/tesla_setting_page.dart';
+import 'package:openid_client/openid_client_io.dart';
+import 'package:openid_client/openid_client.dart';
 
-void main() {
+void main() async{
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -40,13 +42,58 @@ class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0; 
   var isVisible = false;
   var appBar = true;
-  var UUID = "8a61a7d6-52d1-4dd7-9c60-1f5e08edc28b";
+  var uuid = "8a61a7d6-52d1-4dd7-9c60-1f5e08edc28b";
+  //var _status = "";
 
   void changeState(){
     setState(() {
       
     });
   }
+
+  /*Future<void> _loginWithKeycloak() async {
+    // Keycloak Issuer URL (ersetze durch deine Keycloak-URL)
+    String urlString = 'https://10.0.2.2:8180/auth/realms/tacc';
+
+// Umwandlung des Strings zu einer Uri
+  Uri uri = Uri.parse(urlString);
+    final issuer = await Issuer.discover(uri);
+
+    // Client ID aus Keycloak (ersetze mit deinem Client ID)
+    final client = Client(issuer, 'account');
+
+    // Redirect URI für die mobile App
+    final redirectUri = Uri.parse('com.example.app:/callback');  // Beispiel-Redirect-URI
+
+    // Definiere die benötigten Scopes
+    final scopes = ['openid', 'email', 'profile'];
+
+    // Erstelle den AuthorizationRequest (AuthorizationCodeFlow)
+    final authenticator = Authenticator(client, redirectUri: redirectUri, scopes: scopes);
+    
+
+    
+    try {
+      // Versuche, den Benutzer zu authentifizieren
+      final credentials = await authenticator.authorize();
+
+      setState(() {
+        _status = "Erfolgreich eingeloggt!";
+      });
+
+      // Zeige die benutzerdaten an
+      //print("Access Token: ${credentials.accessToken}");
+      print("ID Token: ${credentials.idToken}");
+
+    } catch (e) {
+      setState(() {
+        _status = "Fehler beim Login: $e";
+      });
+      print('Login Fehler: $e');
+    }
+  }*/
+
+
 
   @override
   Widget build(BuildContext context) {

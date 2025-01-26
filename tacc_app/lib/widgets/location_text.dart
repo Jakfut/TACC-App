@@ -33,6 +33,6 @@ class _LocationTextState extends State<LocationText>{
 
   @override
   Widget build(BuildContext context) {
-    return Text(location, style: const TextStyle(color: Color(0xFFFBFCFE), fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'Inter'));
+    return Text(location, style: const TextStyle(color: Color(0xFFFBFCFE), fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Inter'));
   }
 }
