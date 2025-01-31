@@ -21,7 +21,7 @@ class _SaveButtonState extends State<SaveButton> {
       'noDestMinutes': widget.destTimeNotifier.value,
     };
 
-    final Uri apiUrl = Uri.parse('http://10.0.2.2:8080/api/user/${widget.userId}/default-values'); // Update the API endpoint if needed
+    final Uri apiUrl = Uri.parse('http://tacc.jakfut.at/api/user/${widget.userId}/default-values');
 
     try {
       final response = await http.patch(
@@ -33,12 +33,10 @@ class _SaveButtonState extends State<SaveButton> {
       );
 
       if (response.statusCode == 200) {
-        // Successfully sent the data
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Data saved successfully!')),
         );
       } else {
-        // If the server returns an error response
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to save data. Status code: ${response.statusCode}')),
         );

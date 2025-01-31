@@ -11,7 +11,8 @@ import 'package:tacc_app/widgets/calendar_deactivate_button.dart';
 import 'package:http/http.dart' as http;
 
 class CalendarSettingPage extends StatefulWidget {
-  const CalendarSettingPage({super.key});
+  final String uuid;
+  const CalendarSettingPage({super.key, required this.uuid});
 
   @override
   State<StatefulWidget> createState() => _CalendarSettingPageState();
@@ -19,7 +20,7 @@ class CalendarSettingPage extends StatefulWidget {
 
 Future<CalendarInfo> fetchInfo(String userId) async {
   final response = await http.get(Uri.parse(
-      'http://10.0.2.2:8080/api/user/${userId}/calendar-connections/google-calendar'));
+      'http://tacc.jakfut.at/api/user/${userId}/calendar-connections/google-calendar'));
 
   if (response.statusCode == 200) {
     return CalendarInfo.fromJson(
@@ -28,7 +29,7 @@ Future<CalendarInfo> fetchInfo(String userId) async {
     final Map<String, String> payload = {
       'keyword': '#tacc',
     };
-    await http.post(Uri.parse('http://10.0.2.2:8080/api/user/${userId}/calendar-connections/google-calendar'), headers: {'Content-Type': 'application/json'}, body: jsonEncode(payload));
+    await http.post(Uri.parse('http://tacc.jakfut.at/api/user/${userId}/calendar-connections/google-calendar'), headers: {'Content-Type': 'application/json'}, body: jsonEncode(payload));
     return fetchInfo(userId);
   } else {
     throw Exception('Failed to load user info');
@@ -54,7 +55,7 @@ class CalendarInfo {
 Future<String?> fetchUserInfo(String userId) async {
   try {
     final response = await http.get(
-        Uri.parse('http://10.0.2.2:8080/api/user/${userId}'));
+        Uri.parse('http://tacc.jakfut.at/api/user/${userId}'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
@@ -69,13 +70,12 @@ Future<String?> fetchUserInfo(String userId) async {
 
 class _CalendarSettingPageState extends State<CalendarSettingPage> {
   late Future<CalendarInfo> calendarInfo;
-  final String userId = "8a61a7d6-52d1-4dd7-9c60-1f5e08edc28b";
 
   @override
   void initState() {
     super.initState();
-    calendarInfo = fetchInfo(userId);
-    fetchUserInfo(userId).then((result) {
+    calendarInfo = fetchInfo(widget.uuid);
+    fetchUserInfo(widget.uuid).then((result) {
       if(result?.isNotEmpty == null){
         _calendarConnected.value = false;
       }else{
@@ -123,7 +123,7 @@ class _CalendarSettingPageState extends State<CalendarSettingPage> {
                     const SizedBox(height: 40),
                     KeywordSelect(keyword),
                     const SizedBox(height: 40),
-                    SaveButton(keyword, userId),
+                    SaveButton(keyword, widget.uuid),
                     const SizedBox(height: 40),
                     ValueListenableBuilder<bool>(
                       valueListenable: _googleConnected,
@@ -131,7 +131,7 @@ class _CalendarSettingPageState extends State<CalendarSettingPage> {
                         if (connected) {
                           return DisconnectButton(/*userId, _googleConnected*/);
                         } else {
-                          return ConnectButton(/*userId, _googleConnected*/);
+                          return ConnectButton(uuid: widget.uuid);
                         }
                       },
                     ),
@@ -140,9 +140,9 @@ class _CalendarSettingPageState extends State<CalendarSettingPage> {
                       valueListenable: _calendarConnected,
                       builder: (context, connected, child) {
                         if (connected) {
-                          return DeactivateButton(userId, _calendarConnected);
+                          return DeactivateButton(widget.uuid, _calendarConnected);
                         } else {
-                          return ActivateButton(userId, _calendarConnected);
+                          return ActivateButton(widget.uuid, _calendarConnected);
                         }
                       },
                     ),

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:tacc_app/widgets/location_text.dart';
 
 class LocationCard extends StatelessWidget {
+  final String uuid;
   const LocationCard({
     super.key,
+    required this.uuid
   });
 
   @override
@@ -17,7 +19,7 @@ class LocationCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(15.0),
       ),
       child: Padding(padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05, vertical: MediaQuery.of(context).size.width * 0.05),
-        child: const Row(
+        child: Row(
           children: [
             Icon(Icons.location_on_outlined,
              color: Color(0xFF8EBBFF),
@@ -28,7 +30,7 @@ class LocationCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  LocationText(),
+                  LocationText(uuid: uuid),
                 ],
               )
             ),

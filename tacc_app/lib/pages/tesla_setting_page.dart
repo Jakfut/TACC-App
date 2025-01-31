@@ -10,7 +10,8 @@ import 'package:tacc_app/widgets/tesla_activate_button.dart';
 import 'package:http/http.dart' as http;
 
 class TeslaSettingPage extends StatefulWidget {
-  const TeslaSettingPage({super.key});
+  final String uuid;
+  const TeslaSettingPage({super.key, required this.uuid});
 
   @override
   State<StatefulWidget> createState() => _TeslaSettingPageState();
@@ -18,7 +19,7 @@ class TeslaSettingPage extends StatefulWidget {
 
 Future<TeslaInfo> fetchTeslaInfo(String userId) async {
   final response = await http.get(Uri.parse(
-      'http://10.0.2.2:8080/api/user/${userId}/tesla-connections/tessie'));
+      'http://tacc.jakfut.at/api/user/${userId}/tesla-connections/tessie'));
 
   if (response.statusCode == 200) {
     return TeslaInfo.fromJson(
@@ -28,7 +29,7 @@ Future<TeslaInfo> fetchTeslaInfo(String userId) async {
       'accessToken': '',
       'vin': '',
     };
-    await http.post(Uri.parse('http://10.0.2.2:8080/api/user/${userId}/tesla-connections/tessie'), headers: {'Content-Type': 'application/json'}, body: jsonEncode(payload));
+    await http.post(Uri.parse('http://tacc.jakfut.at/api/user/${userId}/tesla-connections/tessie'), headers: {'Content-Type': 'application/json'}, body: jsonEncode(payload));
     return fetchTeslaInfo(userId);
   }else {
     throw Exception('Failed to load tesla info');
@@ -38,7 +39,7 @@ Future<TeslaInfo> fetchTeslaInfo(String userId) async {
 Future<String?> fetchUserInfo(String userId) async {
   try {
     final response = await http.get(
-        Uri.parse('http://10.0.2.2:8080/api/user/${userId}'));
+        Uri.parse('http://tacc.jakfut.at/api/user/${userId}'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
@@ -71,13 +72,12 @@ class TeslaInfo {
 class _TeslaSettingPageState extends State<TeslaSettingPage> {
   late Future<TeslaInfo> teslaInfo;
   late Future<String?> connected;
-  final String userId = "8a61a7d6-52d1-4dd7-9c60-1f5e08edc28b";
 
   @override
   void initState() {
     super.initState();
-    teslaInfo = fetchTeslaInfo(userId);
-    fetchUserInfo(userId).then((result) {
+    teslaInfo = fetchTeslaInfo(widget.uuid);
+    fetchUserInfo(widget.uuid).then((result) {
       if(result?.isNotEmpty == null){
         _connected.value = false;
       }else{
@@ -123,16 +123,16 @@ class _TeslaSettingPageState extends State<TeslaSettingPage> {
                     SizedBox(height: 30),
                     AccessToken(accessToken),
                     SizedBox(height: 40),
-                    SaveButton(vin, accessToken, userId),
+                    SaveButton(vin, accessToken, widget.uuid),
                     SizedBox(height: 40),
 
                     ValueListenableBuilder<bool>(
                       valueListenable: _connected,
                       builder: (context, connected, child) {
                         if (connected) {
-                          return DeactivateButton(userId, _connected);
+                          return DeactivateButton(widget.uuid, _connected);
                         } else {
-                          return ActivateButton(userId, _connected);
+                          return ActivateButton(widget.uuid, _connected);
                         }
                       },
                     )

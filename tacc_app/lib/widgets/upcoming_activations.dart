@@ -5,27 +5,24 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class UpcomingActivations extends StatefulWidget{
-  const UpcomingActivations({super.key});
+  final String uuid;
+  const UpcomingActivations({super.key, required this.uuid});
 
   @override
   State<StatefulWidget> createState() => _UpcomingActivationsState();
 }
 
 Future<List<Activation>> fetchActivations(String userId) async {
-  /*final response = await http.get(Uri.parse(
-      'http://10.0.2.2:8080/api/user/${userId}/tesla/climate/upcoming-activations'));
+  final response = await http.get(Uri.parse(
+      'http://tacc.jakfut.at/api/user/${userId}/tesla/climate/upcoming-activations'));
 
   if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
     final List<dynamic> jsonList = jsonDecode(response.body);
     return jsonList.map((json) => Activation.fromJson(json)).toList();
   } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
     throw Exception('Failed to load user info');
-  }*/
-  // Simuliere eine Verzögerung wie bei einem echten Netzwerkaufruf
+  }
+  /*// Simuliere eine Verzögerung wie bei einem echten Netzwerkaufruf
   await Future.delayed(const Duration(seconds: 2));
 
   // Mock-Daten erstellen
@@ -54,7 +51,7 @@ Future<List<Activation>> fetchActivations(String userId) async {
       eventLocation: "Park",
       travelTimeMinutes: 20,
     ),
-  ];
+  ];*/
 }
 
 class Activation {
@@ -112,12 +109,11 @@ class Activation {
 
 class _UpcomingActivationsState extends State<UpcomingActivations>{
   late Future<List<Activation>> activations;
-  final String userId = "8a61a7d6-52d1-4dd7-9c60-1f5e08edc28b";
 
   @override
   void initState() {
     super.initState();
-    activations = fetchActivations(userId);
+    activations = fetchActivations(widget.uuid);
   }
 
   void changeState() {

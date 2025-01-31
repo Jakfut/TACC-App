@@ -13,7 +13,7 @@ class ActivateButton extends StatefulWidget {
 class _ActivateButtonState extends State<ActivateButton> {
 
   Future<void> activateConnection() async {
-    final Uri apiUrl = Uri.parse('http://10.0.2.2:8080/api/user/${widget.userId}/calendar-connections/google-calendar/activate');
+    final Uri apiUrl = Uri.parse('http://tacc.jakfut.at/api/user/${widget.userId}/calendar-connections/google-calendar/activate');
 
     try {
       final response = await http.patch(

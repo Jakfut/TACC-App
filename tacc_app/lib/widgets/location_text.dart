@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class LocationText extends StatefulWidget{
-  const LocationText({super.key});
+  final String uuid;
+  const LocationText({super.key, required this.uuid});
 
   @override
   State<StatefulWidget> createState() => _LocationTextState();
@@ -10,7 +11,6 @@ class LocationText extends StatefulWidget{
 
 class _LocationTextState extends State<LocationText>{
   var location = "";
-  final String userId = "8a61a7d6-52d1-4dd7-9c60-1f5e08edc28b";
 
   @override
   void initState() {
@@ -20,7 +20,7 @@ class _LocationTextState extends State<LocationText>{
 
   Future<void> fetchInfo() async {
     final response = await http.get(Uri.parse(
-        'http://10.0.2.2:8080/api/user/$userId/tesla/location'));
+        'http://tacc.jakfut.at/api/user/${widget.uuid}/tesla/location'));
 
     if (response.statusCode == 200) {
       setState(() {

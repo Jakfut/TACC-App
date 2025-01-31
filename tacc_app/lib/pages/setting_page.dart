@@ -10,7 +10,8 @@ import 'package:tacc_app/widgets/sign_out_button.dart';
 import 'package:tacc_app/widgets/delete_account_button.dart';
 
 class SettingPage extends StatefulWidget {
-  const SettingPage({super.key});
+  final String uuid;
+  const SettingPage({super.key, required this.uuid});
 
   @override
   State<StatefulWidget> createState() => _SettingPageState();
@@ -18,7 +19,7 @@ class SettingPage extends StatefulWidget {
 
 Future<UserInfo> fetchUserInfo(String userId) async {
   final response = await http.get(Uri.parse(
-      'http://10.0.2.2:8080/api/user/${userId}'));
+      'http://tacc.jakfut.at/api/user/${userId}'));
 
   if (response.statusCode == 200) {
     return UserInfo.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
@@ -62,12 +63,11 @@ class UserInfo {
 
 class _SettingPageState extends State<SettingPage> {
   late Future<UserInfo> userInfo;
-  final String userId = "8a61a7d6-52d1-4dd7-9c60-1f5e08edc28b";
 
   @override
   void initState() {
     super.initState();
-    userInfo = fetchUserInfo(userId);
+    userInfo = fetchUserInfo(widget.uuid);
   }
 
   ValueNotifier destTime = ValueNotifier(0);
@@ -109,7 +109,7 @@ class _SettingPageState extends State<SettingPage> {
                       DestinationCard(destTime),
                       RuntimeCard(runTime),
                       ArrivalBufferCard(bufferTime),
-                      SaveButton(destTime, runTime, bufferTime, userId),
+                      SaveButton(destTime, runTime, bufferTime, widget.uuid),
                       const SizedBox(height: 50),
                       const Text("Account",
                           style: TextStyle(

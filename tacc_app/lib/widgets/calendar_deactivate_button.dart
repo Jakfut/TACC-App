@@ -13,7 +13,7 @@ class DeactivateButton extends StatefulWidget {
 class _DeactivateButtonState extends State<DeactivateButton> {
 
   Future<void> deactivateConnection() async {
-    final Uri apiUrl = Uri.parse('http://10.0.2.2:8080/api/user/${widget.userId}/calendar-connections/deactivate');
+    final Uri apiUrl = Uri.parse('http://tacc.jakfut.at/api/user/${widget.userId}/calendar-connections/deactivate');
 
     try {
       final response = await http.patch(

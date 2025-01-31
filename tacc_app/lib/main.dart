@@ -4,15 +4,56 @@ import 'package:tacc_app/pages/main_page.dart';
 import 'package:tacc_app/pages/setting_page.dart';
 import 'package:tacc_app/pages/tesla_setting_page.dart';
 import 'package:openid_client/openid_client_io.dart';
-import 'package:openid_client/openid_client.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
-void main() async{
-  runApp(const MyApp());
+Future<String> authenticate() async {
+  // Keycloak-Server-URL
+  var uri = Uri.parse('https://keycloak.jakfut.at/realms/tacc');
+
+  // Discovery-Dokument laden
+  var issuer = await Issuer.discover(uri);
+
+  // Client-ID Ihrer Anwendung
+  var client = Client(issuer, 'model-cc');
+
+  // Authenticator erstellen
+  var authenticator = Authenticator(
+    client,
+    scopes: ['openid', 'profile', 'email'],
+    port: 4000, 
+    urlLancher: (url) async {
+      var uri = Uri.parse(url);
+      if (!await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+      } else {
+        throw 'Could not launch $url';
+      }
+    },
+  );
+
+  // Authentifizierung starten
+  var c = await authenticator.authorize();
+
+  // Token speichern
+  var token = await c.getTokenResponse();
+
+  // Benutzerinformationen abrufen
+  var userInfo = await c.getUserInfo();
+
+  // Beispiel: Benutzername anzeigen
+  return userInfo.subject;
+}
+void main() async{ 
+  WidgetsFlutterBinding.ensureInitialized();
+  String uuid = await authenticate();
+  runApp(MyApp(uuid: uuid));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-  
+  final String uuid;
+  const MyApp({super.key, required this.uuid});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -26,13 +67,14 @@ class MyApp extends StatelessWidget {
           surface:  const Color(0xFF181C2A),
         ),
       ),
-      home: const MyHomePage(),
+      home: MyHomePage(uuid: uuid),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  final String uuid;
+  const MyHomePage({super.key, required this.uuid});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -42,8 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0; 
   var isVisible = false;
   var appBar = true;
-  var uuid = "8a61a7d6-52d1-4dd7-9c60-1f5e08edc28b";
-  //var _status = "";
+  
 
   void changeState(){
     setState(() {
@@ -51,65 +92,21 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  /*Future<void> _loginWithKeycloak() async {
-    // Keycloak Issuer URL (ersetze durch deine Keycloak-URL)
-    String urlString = 'https://10.0.2.2:8180/auth/realms/tacc';
-
-// Umwandlung des Strings zu einer Uri
-  Uri uri = Uri.parse(urlString);
-    final issuer = await Issuer.discover(uri);
-
-    // Client ID aus Keycloak (ersetze mit deinem Client ID)
-    final client = Client(issuer, 'account');
-
-    // Redirect URI für die mobile App
-    final redirectUri = Uri.parse('com.example.app:/callback');  // Beispiel-Redirect-URI
-
-    // Definiere die benötigten Scopes
-    final scopes = ['openid', 'email', 'profile'];
-
-    // Erstelle den AuthorizationRequest (AuthorizationCodeFlow)
-    final authenticator = Authenticator(client, redirectUri: redirectUri, scopes: scopes);
-    
-
-    
-    try {
-      // Versuche, den Benutzer zu authentifizieren
-      final credentials = await authenticator.authorize();
-
-      setState(() {
-        _status = "Erfolgreich eingeloggt!";
-      });
-
-      // Zeige die benutzerdaten an
-      //print("Access Token: ${credentials.accessToken}");
-      print("ID Token: ${credentials.idToken}");
-
-    } catch (e) {
-      setState(() {
-        _status = "Fehler beim Login: $e";
-      });
-      print('Login Fehler: $e');
-    }
-  }*/
-
-
-
   @override
   Widget build(BuildContext context) {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = const MainPage();
+        page = MainPage(uuid: widget.uuid);
         break;
       case 1:
-        page = const SettingPage();
+        page = SettingPage(uuid: widget.uuid);
         break;
       case 2:
-        page = const TeslaSettingPage();
+        page = TeslaSettingPage(uuid: widget.uuid);
         break;
       case 3:
-        page = const CalendarSettingPage();
+        page = CalendarSettingPage(uuid: widget.uuid);
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');

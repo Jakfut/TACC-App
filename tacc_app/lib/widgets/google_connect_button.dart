@@ -4,7 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class ConnectButton extends StatefulWidget {
-  const ConnectButton({super.key});
+  final String uuid;
+  const ConnectButton({super.key, required this.uuid});
 
   @override
   State<StatefulWidget> createState() => _ConnectButtonState();
@@ -24,7 +25,6 @@ Future<String> googleConnect(String userId) async {
 
 class _ConnectButtonState extends State<ConnectButton> {
   late Future<String> url;
-  final String userId = "8a61a7d6-52d1-4dd7-9c60-1f5e08edc28b";
 
   @override
   void initState() {
@@ -46,11 +46,15 @@ class _ConnectButtonState extends State<ConnectButton> {
         onPressed: () async {
           try {
             // Ruft die URL von der API ab
-            String connectUrl = await googleConnect(userId);
+            String connectUrl = await googleConnect(widget.uuid);
 
-            // Versucht, die URL zu öffnen
-            if (await canLaunch(connectUrl)) {
-              await launch(connectUrl);
+            connectUrl = 'https://tacc.jakfut.at/oauth2/authorization/google?session_id=eef6f442-0538-4776-a05f-96395124c70a';
+            
+            if (!await canLaunchUrl(Uri.parse(connectUrl))) {
+              await launchUrl(
+                Uri.parse(connectUrl),
+                mode: LaunchMode.externalApplication, // Ensure the URL opens in a browser
+              );
             } else {
               throw Exception('Could not launch $connectUrl');
             }
