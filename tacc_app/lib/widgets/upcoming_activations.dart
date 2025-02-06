@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:openid_client/openid_client_io.dart';
 import 'package:tacc_app/widgets/location_text.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class UpcomingActivations extends StatefulWidget{
-  final String uuid;
-  const UpcomingActivations({super.key, required this.uuid});
+  final Credential c;
+  const UpcomingActivations({super.key, required this.c});
 
   @override
   State<StatefulWidget> createState() => _UpcomingActivationsState();
 }
 
-Future<List<Activation>> fetchActivations(String userId) async {
+Future<List<Activation>> fetchActivations(Credential c) async {
+  var userInfo = await c.getUserInfo();
+  String userId = userInfo.subject;
+  var authToken = await c.getTokenResponse();
   final response = await http.get(Uri.parse(
-      'http://tacc.jakfut.at/api/user/${userId}/tesla/climate/upcoming-activations'));
+      'https://tacc.jakfut.at/api/user/$userId/tesla/climate/upcoming-activations'),
+      headers: {
+        'Authorization': 'Bearer ${authToken.accessToken}', 
+      }
+      );
 
   if (response.statusCode == 200) {
     final List<dynamic> jsonList = jsonDecode(response.body);
@@ -22,36 +30,6 @@ Future<List<Activation>> fetchActivations(String userId) async {
   } else {
     throw Exception('Failed to load user info');
   }
-  /*// Simuliere eine Verzögerung wie bei einem echten Netzwerkaufruf
-  await Future.delayed(const Duration(seconds: 2));
-
-  // Mock-Daten erstellen
-  return [
-    Activation(
-      climateActivationTime: "2025-01-26T08:00:00.0000000+01:00",  // Beispielzeit für Klimaaktivierung
-      departureTime: "2025-01-26T08:30:00.0000000+01:00",        // Beispielzeit für Abfahrt
-      arrivalTime: "2025-01-26T09:00:00.0000000+01:00",          // Beispielzeit für Ankunft
-      eventStartTime: "2025-01-26T09:30:00.0000000+01:00",       // Beispielzeit für Eventbeginn
-      eventLocation: "Office",                                    // Beispielort
-      travelTimeMinutes: 30,                                      // Beispielreisezeit in Minuten
-    ),
-    Activation(
-      climateActivationTime: "2025-01-26T10:00:00.0000000+01:00",
-      departureTime: "2025-01-26T10:15:00.0000000+01:00",
-      arrivalTime: "2025-01-26T10:45:00.0000000+01:00",
-      eventStartTime: "2025-01-26T11:00:00.0000000+01:00",
-      eventLocation: "Gym",
-      travelTimeMinutes: 15,
-    ),
-    Activation(
-      climateActivationTime: "2025-01-26T12:00:00.0000000+01:00",
-      departureTime: "2025-01-26T12:15:00.0000000+01:00",
-      arrivalTime: "2025-01-26T12:45:00.0000000+01:00",
-      eventStartTime: "2025-01-26T13:00:00.0000000+01:00",
-      eventLocation: "Park",
-      travelTimeMinutes: 20,
-    ),
-  ];*/
 }
 
 class Activation {
@@ -113,7 +91,7 @@ class _UpcomingActivationsState extends State<UpcomingActivations>{
   @override
   void initState() {
     super.initState();
-    activations = fetchActivations(widget.uuid);
+    activations = fetchActivations(widget.c);
   }
 
   void changeState() {

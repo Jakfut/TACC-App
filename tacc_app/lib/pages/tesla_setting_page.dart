@@ -1,45 +1,61 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:openid_client/openid_client_io.dart';
 import 'package:tacc_app/widgets/api_select.dart';
 import 'package:tacc_app/widgets/vin.dart';
 import 'package:tacc_app/widgets/access_token.dart';
 import 'package:tacc_app/widgets/tesla_save_button.dart';
+import 'package:tacc_app/widgets/tesla_save_new_button.dart';
 import 'package:tacc_app/widgets/tesla_deactivate_button.dart';
 import 'package:tacc_app/widgets/tesla_activate_button.dart';
 import 'package:http/http.dart' as http;
 
 class TeslaSettingPage extends StatefulWidget {
-  final String uuid;
-  const TeslaSettingPage({super.key, required this.uuid});
+  final Credential c;
+  const TeslaSettingPage({super.key, required this.c});
 
   @override
   State<StatefulWidget> createState() => _TeslaSettingPageState();
 }
 
-Future<TeslaInfo> fetchTeslaInfo(String userId) async {
+Future<TeslaInfo?> fetchTeslaInfo(Credential c) async {
+  var userInfo = await c.getUserInfo();
+  String userId = userInfo.subject;
+  var authToken = await c.getTokenResponse();
   final response = await http.get(Uri.parse(
-      'http://tacc.jakfut.at/api/user/${userId}/tesla-connections/tessie'));
+      'https://tacc.jakfut.at/api/user/$userId/tesla-connections/tessie'),
+      headers: {
+        'Authorization': 'Bearer $authToken', 
+      }
+  );
 
   if (response.statusCode == 200) {
     return TeslaInfo.fromJson(
         jsonDecode(response.body) as Map<String, dynamic>);
-  } else if(response.statusCode == 404){
+  } /*else if(response.statusCode == 404){
     final Map<String, String> payload = {
       'accessToken': '',
       'vin': '',
     };
-    await http.post(Uri.parse('http://tacc.jakfut.at/api/user/${userId}/tesla-connections/tessie'), headers: {'Content-Type': 'application/json'}, body: jsonEncode(payload));
-    return fetchTeslaInfo(userId);
-  }else {
-    throw Exception('Failed to load tesla info');
+    await http.post(Uri.parse('https://tacc.jakfut.at/api/user/$userId/tesla-connections/tessie'), headers: {'Content-Type': 'application/json'}, body: jsonEncode(payload));
+    return fetchTeslaInfo(c);
+  }*/else {
+    return null;
   }
 }
 
-Future<String?> fetchUserInfo(String userId) async {
+Future<String?> fetchUserInfo(Credential c) async {
   try {
+    var userInfo = await c.getUserInfo();
+    String userId = userInfo.subject;
+    var authToken = await c.getTokenResponse();
     final response = await http.get(
-        Uri.parse('http://tacc.jakfut.at/api/user/${userId}'));
+        Uri.parse('https://tacc.jakfut.at/api/user/$userId'),
+      headers: {
+        'Authorization': 'Bearer ${authToken.accessToken}', 
+      }
+      );
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
@@ -70,14 +86,14 @@ class TeslaInfo {
 }
 
 class _TeslaSettingPageState extends State<TeslaSettingPage> {
-  late Future<TeslaInfo> teslaInfo;
+  late Future<TeslaInfo?> teslaInfo;
   late Future<String?> connected;
 
   @override
   void initState() {
     super.initState();
-    teslaInfo = fetchTeslaInfo(widget.uuid);
-    fetchUserInfo(widget.uuid).then((result) {
+    teslaInfo = fetchTeslaInfo(widget.c);
+    fetchUserInfo(widget.c).then((result) {
       if(result?.isNotEmpty == null){
         _connected.value = false;
       }else{
@@ -97,7 +113,7 @@ class _TeslaSettingPageState extends State<TeslaSettingPage> {
       body: Padding(
         padding: EdgeInsets.symmetric(
             horizontal: MediaQuery.of(context).size.width * 0.075),
-        child: FutureBuilder<TeslaInfo>(
+        child: FutureBuilder<TeslaInfo?>(
             future: teslaInfo,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -123,16 +139,16 @@ class _TeslaSettingPageState extends State<TeslaSettingPage> {
                     SizedBox(height: 30),
                     AccessToken(accessToken),
                     SizedBox(height: 40),
-                    SaveButton(vin, accessToken, widget.uuid),
+                    SaveButton(vin, accessToken, widget.c),
                     SizedBox(height: 40),
 
                     ValueListenableBuilder<bool>(
                       valueListenable: _connected,
                       builder: (context, connected, child) {
                         if (connected) {
-                          return DeactivateButton(widget.uuid, _connected);
+                          return DeactivateButton(widget.c, _connected);
                         } else {
-                          return ActivateButton(widget.uuid, _connected);
+                          return ActivateButton(widget.c, _connected);
                         }
                       },
                     )
@@ -157,7 +173,39 @@ class _TeslaSettingPageState extends State<TeslaSettingPage> {
                   ],
                 );
               } else {
-                return const Center(child: Text('No data available'));
+                vin.value = "";
+                accessToken.value = "";
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Tesla setup",
+                        style: TextStyle(
+                            color: Color(0xFFFBFCFE),
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Ubuntu')),
+                    SizedBox(height: 40),
+                    APISelect(),
+                    SizedBox(height: 40),
+                    VIN(vin),
+                    SizedBox(height: 30),
+                    AccessToken(accessToken),
+                    SizedBox(height: 40),
+                    SaveNewButton(vin, accessToken, widget.c),
+                    SizedBox(height: 40),
+
+                    ValueListenableBuilder<bool>(
+                      valueListenable: _connected,
+                      builder: (context, connected, child) {
+                        if (connected) {
+                          return DeactivateButton(widget.c, _connected);
+                        } else {
+                          return ActivateButton(widget.c, _connected);
+                        }
+                      },
+                    )
+                  ],
+                );
               }
             }),
       ),

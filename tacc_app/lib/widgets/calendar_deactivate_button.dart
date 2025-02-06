@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;  
+import 'package:http/http.dart' as http;
+import 'package:openid_client/openid_client_io.dart';  
 
 class DeactivateButton extends StatefulWidget {
-  final String userId;
+  final Credential c;
   final ValueNotifier connectedValueNotifier;
-  const DeactivateButton(this.userId, this.connectedValueNotifier, {super.key});
+  const DeactivateButton(this.c, this.connectedValueNotifier, {super.key});
 
   @override
   State<StatefulWidget> createState() => _DeactivateButtonState();
@@ -13,7 +14,9 @@ class DeactivateButton extends StatefulWidget {
 class _DeactivateButtonState extends State<DeactivateButton> {
 
   Future<void> deactivateConnection() async {
-    final Uri apiUrl = Uri.parse('http://tacc.jakfut.at/api/user/${widget.userId}/calendar-connections/deactivate');
+    var userInfo = await widget.c.getUserInfo();
+    String userId = userInfo.subject;
+    final Uri apiUrl = Uri.parse('https://tacc.jakfut.at/api/user/$userId/calendar-connections/deactivate');
 
     try {
       final response = await http.patch(

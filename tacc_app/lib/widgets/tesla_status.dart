@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:openid_client/openid_client_io.dart';
+
 class TeslaStatus extends StatefulWidget{
-  final String uuid;
-  const TeslaStatus({super.key, required this.uuid});
+  final Credential c;
+  const TeslaStatus({super.key, required this.c});
 
   @override
   State<StatefulWidget> createState() => _TeslaStatusState();
@@ -22,9 +24,17 @@ class _TeslaStatusState extends State<TeslaStatus>{
     fetchInfo();
   }
 
-  Future<void> fetchInfo() async {
+  /*Future<void> fetchInfo() async {
+    var userInfo = await widget.c.getUserInfo();
+    String userId = userInfo.subject;
+    var authToken = await widget.c.getTokenResponse();
+    String? accessToken = authToken.accessToken;
     final response = await http.get(Uri.parse(
-        'http://tacc.jakfut.at/api/user/${widget.uuid}/tesla/reachable'));
+        'https://tacc.jakfut.at/api/user/$userId/tesla/reachable'),
+        headers: {
+          'Authorization': 'Bearer ${accessToken}', 
+        },
+        );
 
     if (response.statusCode == 200) {
       setState(() {
@@ -40,7 +50,26 @@ class _TeslaStatusState extends State<TeslaStatus>{
     } else {
       throw Exception('Failed to load tesla availability');
     }
+  }*/
+
+  Future<void> fetchInfo() async {
+  var userInfo = await widget.c.getUserInfo();
+  String userId = userInfo.subject;
+  var authToken = await widget.c.getTokenResponse();
+  final response = await http.get(Uri.parse(
+      'https://tacc.jakfut.at/api/user/$userId/tesla/reachable'),
+      headers: {
+        'Authorization': 'Bearer ${authToken.accessToken}', 
+      }
+      );
+
+  if (response.statusCode == 200) {
+    final List<dynamic> jsonList = jsonDecode(response.body);
+  } else {
+    //throw Exception('Failed to load user info');
+    throw Exception(response.statusCode);
   }
+}
   
   @override
   Widget build(BuildContext context) {

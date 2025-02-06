@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:openid_client/openid_client_io.dart';
+
 class ClimateCard extends StatefulWidget {
-  final String uuid;
-  const ClimateCard({super.key, required this.uuid});
+  final Credential c;
+  const ClimateCard({super.key, required this.c});
 
   @override
   State<StatefulWidget> createState() => _ClimateCardState();
@@ -24,8 +26,15 @@ class _ClimateCardState extends State<ClimateCard>{
   }
 
   Future<void> fetchInfo() async {
+    var userInfo = await widget.c.getUserInfo();
+    String userId = userInfo.subject;
+    var authToken = await widget.c.getTokenResponse();
     final response = await http.get(Uri.parse(
-        'http://tacc.jakfut.at/api/user/${widget.uuid}/tesla/climate/state'));
+        'https://tacc.jakfut.at/api/user/$userId/tesla/climate/state'),
+        headers: {
+        'Authorization': 'Bearer ${authToken.accessToken}', 
+      }
+      );
 
     if (response.statusCode == 200) {
       setState(() {
@@ -40,7 +49,9 @@ class _ClimateCardState extends State<ClimateCard>{
           bText = "Turn on";
         }
       });
-    } else {
+    } else if(response.statusCode == 401) {
+      print('401');
+    }else {
       throw Exception('Failed to load tesla availability');
     }
   }

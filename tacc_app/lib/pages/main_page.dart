@@ -1,33 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:openid_client/openid_client_io.dart';
 import 'package:tacc_app/widgets/climate_card.dart';
 import 'package:tacc_app/widgets/location_card.dart';
 import 'package:tacc_app/widgets/tesla_status.dart';
 import 'package:tacc_app/widgets/upcoming_activations.dart';
-import 'package:http/http.dart' as http;
 
 class MainPage extends StatefulWidget {
-  final String uuid;
-  const MainPage({super.key, required this.uuid});
+  final Credential c;
+  const MainPage({super.key, required this.c});
 
   @override
   State<MainPage> createState() => _MainPageState();
 }
 
-/*Future<void> fetchUserInfo(String userId) async {
-  final response = await http.get(Uri.parse(
-      'http://tacc.jakfut.at/api/user/${userId}'));
-
-  //if (response.statusCode == 404) {
-    //await http.post(Uri.parse('http://tacc.jakfut.at/api/user/${userId}'));
-    //return fetchUserInfo(userId);
-  //}
-}*/
-
 class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    //fetchUserInfo(widget.uuid);
   }
   @override
   Widget build(BuildContext context) {
@@ -40,13 +29,13 @@ class _MainPageState extends State<MainPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Tesla Status", style: TextStyle(color: Color(0xFFFBFCFE), fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Ubuntu')),
-            TeslaStatus(uuid: widget.uuid),
-            LocationCard(uuid: widget.uuid),
-            ClimateCard(uuid: widget.uuid),
+            TeslaStatus(c: widget.c),
+            LocationCard(c: widget.c),
+            ClimateCard(c: widget.c),
             SizedBox(height:  50),
             Text("Upcoming Activations", style: TextStyle(color: Color(0xFFFBFCFE), fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Ubuntu')),
             Expanded(
-            child: UpcomingActivations(uuid: widget.uuid), 
+            child: UpcomingActivations(c: widget.c), 
           ),
           ],
         )

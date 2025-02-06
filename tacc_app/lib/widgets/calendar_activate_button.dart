@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;  
+import 'package:http/http.dart' as http;
+import 'package:openid_client/openid_client_io.dart';  
 
 class ActivateButton extends StatefulWidget {
-  final String userId;
+  final Credential c;
   final ValueNotifier connectedValueNotifier;
-  const ActivateButton(this.userId, this.connectedValueNotifier, {super.key});
+  const ActivateButton(this.c, this.connectedValueNotifier, {super.key});
 
   @override
   State<StatefulWidget> createState() => _ActivateButtonState();
@@ -13,7 +14,9 @@ class ActivateButton extends StatefulWidget {
 class _ActivateButtonState extends State<ActivateButton> {
 
   Future<void> activateConnection() async {
-    final Uri apiUrl = Uri.parse('http://tacc.jakfut.at/api/user/${widget.userId}/calendar-connections/google-calendar/activate');
+    var userInfo = await widget.c.getUserInfo();
+    String userId = userInfo.subject;
+    final Uri apiUrl = Uri.parse('https://tacc.jakfut.at/api/user/$userId/calendar-connections/google-calendar/activate');
 
     try {
       final response = await http.patch(

@@ -3,16 +3,16 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:openid_client/openid_client_io.dart';  
 
-class SaveButton extends StatefulWidget {
+class SaveNewButton extends StatefulWidget {
   final ValueNotifier vinNotifier;
   final ValueNotifier accessTokenNotifier;
   final Credential c;
-  const SaveButton(this.vinNotifier, this.accessTokenNotifier, this.c, {super.key,});
+  const SaveNewButton(this.vinNotifier, this.accessTokenNotifier, this.c, {super.key,});
   @override
-  State<StatefulWidget> createState() => _SaveButtonState();
+  State<StatefulWidget> createState() => _SaveNewButtonState();
 }
 
-class _SaveButtonState extends State<SaveButton> {
+class _SaveNewButtonState extends State<SaveNewButton> {
 
   Future<void> updateUserInfo() async {
     var userInfo = await widget.c.getUserInfo();
@@ -26,7 +26,7 @@ class _SaveButtonState extends State<SaveButton> {
     final Uri apiUrl = Uri.parse('https://tacc.jakfut.at/api/user/$userId/tesla-connections/tessie');
 
     try {
-      final response = await http.patch(
+      final response = await http.post(
         apiUrl,
         headers: {
           'Content-Type': 'application/json',
@@ -54,6 +54,7 @@ class _SaveButtonState extends State<SaveButton> {
   Future<void> activateConnection() async {
     var userInfo = await widget.c.getUserInfo();
     String userId = userInfo.subject;
+    var authToken = await widget.c.getTokenResponse();
     final Uri apiUrl = Uri.parse('https://tacc.jakfut.at/api/user/$userId/tesla-connections/tessie/activate');
 
     try {
@@ -61,6 +62,7 @@ class _SaveButtonState extends State<SaveButton> {
         apiUrl,
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${authToken.accessToken}', 
         },
       );
 
@@ -89,11 +91,13 @@ class _SaveButtonState extends State<SaveButton> {
           backgroundColor: const Color(0xFF8EBBFF),
         ),
         onPressed: () {
+          print(widget.vinNotifier);
+          print(widget.accessTokenNotifier);
           updateUserInfo();
           activateConnection();
         },
         child: const Text(
-          "Save",
+          "SaveNew",
           style: TextStyle(
             fontSize: 16,
             fontFamily: 'Inter',

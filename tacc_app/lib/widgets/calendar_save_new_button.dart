@@ -3,15 +3,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:openid_client/openid_client_io.dart';  
 
-class SaveButton extends StatefulWidget {
+class SaveNewButton extends StatefulWidget {
   final ValueNotifier keywordNotifier;
   final Credential c;
-  const SaveButton(this.keywordNotifier, this.c, {super.key,});
+  const SaveNewButton(this.keywordNotifier, this.c, {super.key,});
   @override
-  State<StatefulWidget> createState() => _SaveButtonState();
+  State<StatefulWidget> createState() => _SaveNewButtonState();
 }
 
-class _SaveButtonState extends State<SaveButton> {
+class _SaveNewButtonState extends State<SaveNewButton> {
 
   Future<void> updateCalendarInfo() async {
     var userInfo = await widget.c.getUserInfo();
@@ -24,7 +24,7 @@ class _SaveButtonState extends State<SaveButton> {
     final Uri apiUrl = Uri.parse('https://tacc.jakfut.at/api/user/$userId/calendar-connections/google-calendar'); // Update the API endpoint if needed
 
     try {
-      final response = await http.patch(
+      final response = await http.post(
         apiUrl,
         headers: {
           'Content-Type': 'application/json',

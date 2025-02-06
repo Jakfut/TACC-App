@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:openid_client/openid_client_io.dart';
 import 'package:tacc_app/widgets/destination_card.dart';
 import 'package:tacc_app/widgets/arrival_buffer_card.dart';
 import 'package:tacc_app/widgets/runtime_card.dart';
@@ -10,16 +11,23 @@ import 'package:tacc_app/widgets/sign_out_button.dart';
 import 'package:tacc_app/widgets/delete_account_button.dart';
 
 class SettingPage extends StatefulWidget {
-  final String uuid;
-  const SettingPage({super.key, required this.uuid});
+  final Credential c;
+  const SettingPage({super.key, required this.c});
 
   @override
   State<StatefulWidget> createState() => _SettingPageState();
 }
 
-Future<UserInfo> fetchUserInfo(String userId) async {
+Future<UserInfo> fetchUserInfo(Credential c) async {
+  var userInfo = await c.getUserInfo();
+  String userId = userInfo.subject;
+  var authToken = await c.getTokenResponse();
   final response = await http.get(Uri.parse(
-      'http://tacc.jakfut.at/api/user/${userId}'));
+      'https://tacc.jakfut.at/api/user/${userId}'),
+      headers: {
+        'Authorization': 'Bearer ${authToken.accessToken}', 
+      }
+      );
 
   if (response.statusCode == 200) {
     return UserInfo.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
@@ -67,7 +75,7 @@ class _SettingPageState extends State<SettingPage> {
   @override
   void initState() {
     super.initState();
-    userInfo = fetchUserInfo(widget.uuid);
+    userInfo = fetchUserInfo(widget.c);
   }
 
   ValueNotifier destTime = ValueNotifier(0);
@@ -109,7 +117,7 @@ class _SettingPageState extends State<SettingPage> {
                       DestinationCard(destTime),
                       RuntimeCard(runTime),
                       ArrivalBufferCard(bufferTime),
-                      SaveButton(destTime, runTime, bufferTime, widget.uuid),
+                      SaveButton(destTime, runTime, bufferTime, widget.c),
                       const SizedBox(height: 50),
                       const Text("Account",
                           style: TextStyle(

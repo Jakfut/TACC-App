@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:openid_client/openid_client_io.dart';
 import 'package:tacc_app/widgets/location_text.dart';
 
 class LocationCard extends StatelessWidget {
-  final String uuid;
+  final Credential c;
   const LocationCard({
     super.key,
-    required this.uuid
+    required this.c
   });
 
   @override
@@ -30,7 +31,7 @@ class LocationCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  LocationText(uuid: uuid),
+                  LocationText(c: c),
                 ],
               )
             ),

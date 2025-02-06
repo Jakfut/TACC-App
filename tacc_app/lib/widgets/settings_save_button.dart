@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;  
+import 'package:http/http.dart' as http;
+import 'package:openid_client/openid_client_io.dart';  
 
 class SaveButton extends StatefulWidget {
   final ValueNotifier destTimeNotifier;
   final ValueNotifier runTimeNotifier;
   final ValueNotifier bufferTimeNotifier;
-  final String userId;
-  const SaveButton(this.destTimeNotifier, this.runTimeNotifier, this.bufferTimeNotifier, this.userId, {super.key,});
+  final Credential c;
+  const SaveButton(this.destTimeNotifier, this.runTimeNotifier, this.bufferTimeNotifier, this.c, {super.key,});
   @override
   State<StatefulWidget> createState() => _SaveButtonState();
 }
@@ -20,14 +21,17 @@ class _SaveButtonState extends State<SaveButton> {
       'ccRuntimeMinutes': widget.runTimeNotifier.value,
       'noDestMinutes': widget.destTimeNotifier.value,
     };
-
-    final Uri apiUrl = Uri.parse('http://tacc.jakfut.at/api/user/${widget.userId}/default-values');
+    var userInfo = await widget.c.getUserInfo();
+    String userId = userInfo.subject;
+    var authToken = await widget.c.getTokenResponse();
+    final Uri apiUrl = Uri.parse('https://tacc.jakfut.at/api/user/${userId}/default-values');
 
     try {
       final response = await http.patch(
         apiUrl,
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${authToken.accessToken}', 
         },
         body: jsonEncode(data),
       );
@@ -42,7 +46,6 @@ class _SaveButtonState extends State<SaveButton> {
         );
       }
     } catch (e) {
-      // Handle network or other errors
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );

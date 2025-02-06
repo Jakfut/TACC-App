@@ -1,9 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:openid_client/openid_client_io.dart';
 import 'package:tacc_app/widgets/calendar_select.dart';
 import 'package:tacc_app/widgets/keyword_select.dart';
 import 'package:tacc_app/widgets/calendar_save_button.dart';
+import 'package:tacc_app/widgets/calendar_save_new_button.dart';
 import 'package:tacc_app/widgets/google_disconnect_button.dart';
 import 'package:tacc_app/widgets/google_connect_button.dart';
 import 'package:tacc_app/widgets/calendar_activate_button.dart';
@@ -11,28 +12,35 @@ import 'package:tacc_app/widgets/calendar_deactivate_button.dart';
 import 'package:http/http.dart' as http;
 
 class CalendarSettingPage extends StatefulWidget {
-  final String uuid;
-  const CalendarSettingPage({super.key, required this.uuid});
+  final Credential c;
+  const CalendarSettingPage({super.key, required this.c});
 
   @override
   State<StatefulWidget> createState() => _CalendarSettingPageState();
 }
 
-Future<CalendarInfo> fetchInfo(String userId) async {
+Future<CalendarInfo?> fetchInfo(Credential c) async {
+  var userInfo = await c.getUserInfo();
+  String userId = userInfo.subject;
+  var authToken = await c.getTokenResponse();
   final response = await http.get(Uri.parse(
-      'http://tacc.jakfut.at/api/user/${userId}/calendar-connections/google-calendar'));
+      'https://tacc.jakfut.at/api/user/${userId}/calendar-connections/google-calendar'),
+      headers: {
+        'Authorization': 'Bearer ${authToken.accessToken}', 
+      }
+      );
 
   if (response.statusCode == 200) {
     return CalendarInfo.fromJson(
         jsonDecode(response.body) as Map<String, dynamic>);
-  } else if(response.statusCode == 404){
+  } /*else if(response.statusCode == 404){
     final Map<String, String> payload = {
       'keyword': '#tacc',
     };
-    await http.post(Uri.parse('http://tacc.jakfut.at/api/user/${userId}/calendar-connections/google-calendar'), headers: {'Content-Type': 'application/json'}, body: jsonEncode(payload));
-    return fetchInfo(userId);
-  } else {
-    throw Exception('Failed to load user info');
+    await http.post(Uri.parse('https://tacc.jakfut.at/api/user/${userId}/calendar-connections/google-calendar'), headers: {'Content-Type': 'application/json'}, body: jsonEncode(payload));
+    return fetchInfo(c);
+  } */else {
+    return null;
   }
 }
 
@@ -52,10 +60,12 @@ class CalendarInfo {
   }
 }
 
-Future<String?> fetchUserInfo(String userId) async {
+Future<String?> fetchUserInfo(Credential c) async {
   try {
+    var userInfo = await c.getUserInfo();
+    String userId = userInfo.subject;
     final response = await http.get(
-        Uri.parse('http://tacc.jakfut.at/api/user/${userId}'));
+        Uri.parse('https://tacc.jakfut.at/api/user/${userId}'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
@@ -69,13 +79,13 @@ Future<String?> fetchUserInfo(String userId) async {
 }
 
 class _CalendarSettingPageState extends State<CalendarSettingPage> {
-  late Future<CalendarInfo> calendarInfo;
+  late Future<CalendarInfo?> calendarInfo;
 
   @override
   void initState() {
     super.initState();
-    calendarInfo = fetchInfo(widget.uuid);
-    fetchUserInfo(widget.uuid).then((result) {
+    calendarInfo = fetchInfo(widget.c);
+    fetchUserInfo(widget.c).then((result) {
       if(result?.isNotEmpty == null){
         _calendarConnected.value = false;
       }else{
@@ -99,7 +109,7 @@ class _CalendarSettingPageState extends State<CalendarSettingPage> {
       body: Padding(
         padding: EdgeInsets.symmetric(
             horizontal: MediaQuery.of(context).size.width * 0.075),
-        child: FutureBuilder<CalendarInfo>(
+        child: FutureBuilder<CalendarInfo?>(
             future: calendarInfo,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -123,7 +133,7 @@ class _CalendarSettingPageState extends State<CalendarSettingPage> {
                     const SizedBox(height: 40),
                     KeywordSelect(keyword),
                     const SizedBox(height: 40),
-                    SaveButton(keyword, widget.uuid),
+                    SaveButton(keyword, widget.c),
                     const SizedBox(height: 40),
                     ValueListenableBuilder<bool>(
                       valueListenable: _googleConnected,
@@ -131,7 +141,7 @@ class _CalendarSettingPageState extends State<CalendarSettingPage> {
                         if (connected) {
                           return DisconnectButton(/*userId, _googleConnected*/);
                         } else {
-                          return ConnectButton(uuid: widget.uuid);
+                          return ConnectButton(c: widget.c);
                         }
                       },
                     ),
@@ -140,16 +150,56 @@ class _CalendarSettingPageState extends State<CalendarSettingPage> {
                       valueListenable: _calendarConnected,
                       builder: (context, connected, child) {
                         if (connected) {
-                          return DeactivateButton(widget.uuid, _calendarConnected);
+                          return DeactivateButton(widget.c, _calendarConnected);
                         } else {
-                          return ActivateButton(widget.uuid, _calendarConnected);
+                          return ActivateButton(widget.c, _calendarConnected);
                         }
                       },
                     ),
                   ],
                 );
               } else {
-                return const Center(child: Text('No data available'));
+                keyword.value = "";
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Calendar setup",
+                        style: TextStyle(
+                            color: Color(0xFFFBFCFE),
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Ubuntu')),
+                    const SizedBox(height: 40),
+                    const CalendarSelect(),
+                    const SizedBox(height: 40),
+                    KeywordSelect(keyword),
+                    const SizedBox(height: 40),
+                    SaveNewButton(keyword, widget.c),
+                    const SizedBox(height: 40),
+                    ValueListenableBuilder<bool>(
+                      valueListenable: _googleConnected,
+                      builder: (context, connected, child) {
+                        if (connected) {
+                          return DisconnectButton(/*userId, _googleConnected*/);
+                        } else {
+                          return ConnectButton(c: widget.c);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 40),
+                    ValueListenableBuilder<bool>(
+                      valueListenable: _calendarConnected,
+                      builder: (context, connected, child) {
+                        if (connected) {
+                          return DeactivateButton(widget.c, _calendarConnected);
+                        } else {
+                          return ActivateButton(widget.c, _calendarConnected);
+                        }
+                      },
+                    ),
+                  ],
+                );
               }
             }),
       ),
