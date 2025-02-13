@@ -16,6 +16,7 @@ class _DeactivateButtonState extends State<DeactivateButton> {
   Future<void> deactivateConnection() async {
     var userInfo = await widget.c.getUserInfo();
     String userId = userInfo.subject;
+    var authToken = await widget.c.getTokenResponse();
     final Uri apiUrl = Uri.parse('https://tacc.jakfut.at/api/user/$userId/tesla-connections/deactivate');
 
     try {
@@ -23,6 +24,7 @@ class _DeactivateButtonState extends State<DeactivateButton> {
         apiUrl,
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${authToken.accessToken}', 
         },
       );
 

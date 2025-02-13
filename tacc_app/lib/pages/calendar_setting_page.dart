@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:openid_client/openid_client_io.dart';
 import 'package:tacc_app/widgets/calendar_select.dart';
 import 'package:tacc_app/widgets/keyword_select.dart';
+import 'package:tacc_app/widgets/keyword_select2.dart';
 import 'package:tacc_app/widgets/calendar_save_button.dart';
 import 'package:tacc_app/widgets/calendar_save_new_button.dart';
 import 'package:tacc_app/widgets/google_disconnect_button.dart';
@@ -33,30 +34,27 @@ Future<CalendarInfo?> fetchInfo(Credential c) async {
   if (response.statusCode == 200) {
     return CalendarInfo.fromJson(
         jsonDecode(response.body) as Map<String, dynamic>);
-  } /*else if(response.statusCode == 404){
-    final Map<String, String> payload = {
-      'keyword': '#tacc',
-    };
-    await http.post(Uri.parse('https://tacc.jakfut.at/api/user/${userId}/calendar-connections/google-calendar'), headers: {'Content-Type': 'application/json'}, body: jsonEncode(payload));
-    return fetchInfo(c);
-  } */else {
+  } else {
     return null;
   }
 }
 
 class CalendarInfo {
   final String? email;
-  final String keyword;
+  final String keywordStart;
+  final String keywordEnd;
 
   const CalendarInfo({
     this.email,
-    required this.keyword,
+    required this.keywordStart,
+    required this.keywordEnd,
   });
 
   factory CalendarInfo.fromJson(Map<String, dynamic> json) {
     return CalendarInfo(
         email: json['email'] as String?,
-        keyword: json['keyword'] as String);
+        keywordStart: json['keywordStart'] as String,
+        keywordEnd: json['keywordEnd'] as String);
   }
 }
 
@@ -64,9 +62,13 @@ Future<String?> fetchUserInfo(Credential c) async {
   try {
     var userInfo = await c.getUserInfo();
     String userId = userInfo.subject;
+    var authToken = await c.getTokenResponse();
     final response = await http.get(
-        Uri.parse('https://tacc.jakfut.at/api/user/${userId}'));
-
+        Uri.parse('https://tacc.jakfut.at/api/user/${userId}'),
+        headers: {
+        'Authorization': 'Bearer ${authToken.accessToken}', 
+      }
+    );
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
       return data['activeCalendarConnectionType'] as String?;
@@ -94,7 +96,8 @@ class _CalendarSettingPageState extends State<CalendarSettingPage> {
     });
   }
 
-  ValueNotifier keyword = ValueNotifier("");
+  ValueNotifier keywordStart = ValueNotifier("");
+  ValueNotifier keywordEnd = ValueNotifier("");
 
   void changeState() {
     setState(() {});
@@ -117,7 +120,8 @@ class _CalendarSettingPageState extends State<CalendarSettingPage> {
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else if (snapshot.hasData) {
-                keyword.value = snapshot.data!.keyword;
+                keywordStart.value = snapshot.data!.keywordStart;
+                keywordEnd.value = snapshot.data!.keywordEnd;
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,9 +135,11 @@ class _CalendarSettingPageState extends State<CalendarSettingPage> {
                     const SizedBox(height: 40),
                     const CalendarSelect(),
                     const SizedBox(height: 40),
-                    KeywordSelect(keyword),
+                    KeywordSelect(keywordStart),
                     const SizedBox(height: 40),
-                    SaveButton(keyword, widget.c),
+                    KeywordSelect2(keywordEnd),
+                    const SizedBox(height: 40),
+                    SaveButton(keywordStart, keywordEnd, widget.c),
                     const SizedBox(height: 40),
                     ValueListenableBuilder<bool>(
                       valueListenable: _googleConnected,
@@ -159,7 +165,8 @@ class _CalendarSettingPageState extends State<CalendarSettingPage> {
                   ],
                 );
               } else {
-                keyword.value = "";
+                keywordStart.value = "";
+                keywordEnd.value = "";
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,9 +180,11 @@ class _CalendarSettingPageState extends State<CalendarSettingPage> {
                     const SizedBox(height: 40),
                     const CalendarSelect(),
                     const SizedBox(height: 40),
-                    KeywordSelect(keyword),
+                    KeywordSelect(keywordStart),
                     const SizedBox(height: 40),
-                    SaveNewButton(keyword, widget.c),
+                    KeywordSelect2(keywordEnd),
+                    const SizedBox(height: 40),
+                    SaveNewButton(keywordStart, keywordEnd, widget.c),
                     const SizedBox(height: 40),
                     ValueListenableBuilder<bool>(
                       valueListenable: _googleConnected,

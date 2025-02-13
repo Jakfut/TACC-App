@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:openid_client/openid_client_io.dart';
 import 'package:tacc_app/widgets/navigation_bar.dart';
-import 'package:openid_client/openid_client_io.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Future<Credential> authenticate() async {
@@ -32,8 +31,9 @@ Future<Credential> authenticate() async {
     var c = await authenticator.authorize();
 
     // Token speichern
-    var token = await c.getTokenResponse();
-    print(token.accessToken);
+    //var token = await c.getTokenResponse();
+    //print(token.accessToken);
+    
     // Benutzerinformationen abrufen
     //var userInfo = await c.getUserInfo();
     //print(userInfo.subject);

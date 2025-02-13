@@ -26,21 +26,14 @@ Future<TeslaInfo?> fetchTeslaInfo(Credential c) async {
   final response = await http.get(Uri.parse(
       'https://tacc.jakfut.at/api/user/$userId/tesla-connections/tessie'),
       headers: {
-        'Authorization': 'Bearer $authToken', 
+        'Authorization': 'Bearer ${authToken.accessToken}', 
       }
   );
 
   if (response.statusCode == 200) {
     return TeslaInfo.fromJson(
         jsonDecode(response.body) as Map<String, dynamic>);
-  } /*else if(response.statusCode == 404){
-    final Map<String, String> payload = {
-      'accessToken': '',
-      'vin': '',
-    };
-    await http.post(Uri.parse('https://tacc.jakfut.at/api/user/$userId/tesla-connections/tessie'), headers: {'Content-Type': 'application/json'}, body: jsonEncode(payload));
-    return fetchTeslaInfo(c);
-  }*/else {
+  }else {
     return null;
   }
 }

@@ -14,8 +14,13 @@ class ConnectButton extends StatefulWidget {
 Future<String> googleConnect(Credential c) async {
   var userInfo = await c.getUserInfo();
   String userId = userInfo.subject;
+  var authToken = await c.getTokenResponse();
   final response = await http.get(Uri.parse(
-      'https://tacc.jakfut.at/auth/google/start/$userId'));
+      'https://tacc.jakfut.at/auth/google/start/$userId'),
+      headers: {
+        'Authorization': 'Bearer ${authToken.accessToken}', 
+      }
+      );
 
   if (response.statusCode == 200) {
         return response.body;

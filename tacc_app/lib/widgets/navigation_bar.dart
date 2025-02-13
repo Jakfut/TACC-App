@@ -30,12 +30,12 @@ class _NavigationState extends State<Navigation> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        //page = MainPage(c: widget.c);
-        page = SettingPage(c: widget.c);
+        page = MainPage(c: widget.c);
+        //page = SettingPage(c: widget.c);
         break;
       case 1:
-        //page = SettingPage(c: widget.c);
-        page = MainPage(c: widget.c);
+        page = SettingPage(c: widget.c);
+        //page = MainPage(c: widget.c);
         break;
       case 2:
         page = TeslaSettingPage(c: widget.c);

@@ -30,13 +30,18 @@ class _LocationTextState extends State<LocationText>{
       }
       );
 
+    if (!mounted) return;
+
     if (response.statusCode == 200) {
       setState(() {
         location = response.body;
       });
     } else {
       //throw Exception('Failed to load tesla location');
-      throw Exception(response.statusCode);
+      setState(() {
+        location = '';
+      });
+      //throw Exception(response.statusCode);
     }
   }
 

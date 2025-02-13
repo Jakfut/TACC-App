@@ -24,7 +24,7 @@ class _TeslaStatusState extends State<TeslaStatus>{
     fetchInfo();
   }
 
-  /*Future<void> fetchInfo() async {
+  Future<void> fetchInfo() async {
     var userInfo = await widget.c.getUserInfo();
     String userId = userInfo.subject;
     var authToken = await widget.c.getTokenResponse();
@@ -36,6 +36,8 @@ class _TeslaStatusState extends State<TeslaStatus>{
         },
         );
 
+    if (!mounted) return;
+    
     if (response.statusCode == 200) {
       setState(() {
         available = jsonDecode(response.body) as bool;
@@ -47,29 +49,15 @@ class _TeslaStatusState extends State<TeslaStatus>{
           tstatusColor = const Color(0xFFD55A5A);
         }
       });
-    } else {
-      throw Exception('Failed to load tesla availability');
+    } else if (response.statusCode == 404){
+      tstatusText = "Disconnected";
+      tstatusColor = const Color(0xFFD55A5A);
+    }else {
+      tstatusText = "Disconnected";
+      tstatusColor = const Color(0xFFD55A5A);
+      //throw Exception('Failed to load tesla availability');
     }
-  }*/
-
-  Future<void> fetchInfo() async {
-  var userInfo = await widget.c.getUserInfo();
-  String userId = userInfo.subject;
-  var authToken = await widget.c.getTokenResponse();
-  final response = await http.get(Uri.parse(
-      'https://tacc.jakfut.at/api/user/$userId/tesla/reachable'),
-      headers: {
-        'Authorization': 'Bearer ${authToken.accessToken}', 
-      }
-      );
-
-  if (response.statusCode == 200) {
-    final List<dynamic> jsonList = jsonDecode(response.body);
-  } else {
-    //throw Exception('Failed to load user info');
-    throw Exception(response.statusCode);
   }
-}
   
   @override
   Widget build(BuildContext context) {

@@ -16,6 +16,7 @@ class _ActivateButtonState extends State<ActivateButton> {
   Future<void> activateConnection() async {
     var userInfo = await widget.c.getUserInfo();
     String userId = userInfo.subject;
+    var authToken = await widget.c.getTokenResponse();
     final Uri apiUrl = Uri.parse('https://tacc.jakfut.at/api/user/$userId/tesla-connections/tessie/activate');
 
     try {
@@ -23,6 +24,7 @@ class _ActivateButtonState extends State<ActivateButton> {
         apiUrl,
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${authToken.accessToken}', 
         },
       );
 

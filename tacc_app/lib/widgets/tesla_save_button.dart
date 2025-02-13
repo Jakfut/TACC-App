@@ -54,6 +54,7 @@ class _SaveButtonState extends State<SaveButton> {
   Future<void> activateConnection() async {
     var userInfo = await widget.c.getUserInfo();
     String userId = userInfo.subject;
+    var authToken = await widget.c.getTokenResponse();
     final Uri apiUrl = Uri.parse('https://tacc.jakfut.at/api/user/$userId/tesla-connections/tessie/activate');
 
     try {
@@ -61,6 +62,7 @@ class _SaveButtonState extends State<SaveButton> {
         apiUrl,
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${authToken.accessToken}', 
         },
       );
 

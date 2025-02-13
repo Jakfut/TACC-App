@@ -36,6 +36,8 @@ class _ClimateCardState extends State<ClimateCard>{
       }
       );
 
+    if (!mounted) return;
+
     if (response.statusCode == 200) {
       setState(() {
         climate = jsonDecode(response.body) as bool;
@@ -49,10 +51,11 @@ class _ClimateCardState extends State<ClimateCard>{
           bText = "Turn on";
         }
       });
-    } else if(response.statusCode == 401) {
-      print('401');
     }else {
-      throw Exception('Failed to load tesla availability');
+      //throw Exception('Failed to load tesla availability');
+      cstatusText = "Inactive";
+      cstatusColor = const Color(0xFFD55A5A);
+      bText = "Turn on";
     }
   }
 
