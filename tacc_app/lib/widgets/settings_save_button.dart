@@ -7,13 +7,46 @@ class SaveButton extends StatefulWidget {
   final ValueNotifier destTimeNotifier;
   final ValueNotifier runTimeNotifier;
   final ValueNotifier bufferTimeNotifier;
+  final ValueNotifier destValidNotifier;
+  final ValueNotifier runValidNotifier;
+  final ValueNotifier arrivalValidNotifier;
   final Credential c;
-  const SaveButton(this.destTimeNotifier, this.runTimeNotifier, this.bufferTimeNotifier, this.c, {super.key,});
+  const SaveButton(this.destTimeNotifier, this.runTimeNotifier, this.bufferTimeNotifier, this.destValidNotifier, this.runValidNotifier, this.arrivalValidNotifier, this.c, {super.key,});
   @override
   State<StatefulWidget> createState() => _SaveButtonState();
 }
 
 class _SaveButtonState extends State<SaveButton> {
+  late ValueNotifier<bool> isFormValidNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    isFormValidNotifier = ValueNotifier<bool>(
+      widget.destValidNotifier.value &&
+          widget.runValidNotifier.value &&
+          widget.arrivalValidNotifier.value,
+    );
+
+    widget.destValidNotifier.addListener(updateFormValidity);
+    widget.runValidNotifier.addListener(updateFormValidity);
+    widget.arrivalValidNotifier.addListener(updateFormValidity);
+  }
+
+  void updateFormValidity() {
+    isFormValidNotifier.value = widget.destValidNotifier.value &&
+        widget.runValidNotifier.value &&
+        widget.arrivalValidNotifier.value;
+  }
+
+  @override
+  void dispose() {
+    widget.destValidNotifier.removeListener(updateFormValidity);
+    widget.runValidNotifier.removeListener(updateFormValidity);
+    widget.arrivalValidNotifier.removeListener(updateFormValidity);
+    isFormValidNotifier.dispose();
+    super.dispose();
+  }
 
   Future<void> updateUserInfo() async {
     Map<String, dynamic> data = {
@@ -51,17 +84,24 @@ class _SaveButtonState extends State<SaveButton> {
       );
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: isFormValidNotifier,
+      builder: (context, isFormValid, child) {
     return SizedBox(
       width: double.infinity, 
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF8EBBFF),
+          backgroundColor: isFormValid
+                  ? const Color(0xFF8EBBFF)
+                  : const Color(0x508EBBFF)
         ),
         onPressed: () {
-          updateUserInfo();
+          if(isFormValid){
+            updateUserInfo();
+          }
         },
         child: const Text(
           "Save",
@@ -72,6 +112,8 @@ class _SaveButtonState extends State<SaveButton> {
           ),
         ),
       ),
+    );
+      }
     );
   }
 }

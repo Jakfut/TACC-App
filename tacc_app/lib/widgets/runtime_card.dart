@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 
 class RuntimeCard extends StatefulWidget {
   final ValueNotifier timeValueNotifier;
-  const RuntimeCard(this.timeValueNotifier, {super.key,});
+  final ValueNotifier validNotifier;
+  const RuntimeCard(this.timeValueNotifier, this.validNotifier, {super.key,});
 
   @override
   State<StatefulWidget> createState() => _RuntimeCardState();
@@ -83,8 +84,10 @@ class _RuntimeCardState extends State<RuntimeCard>{
                           setState(() {
                             if (nValue != null && nValue >= 0 && nValue <= 20) {
                               isValidInput = true;
+                              widget.validNotifier.value = true;
                               widget.timeValueNotifier.value = nValue;
                             } else {
+                              widget.validNotifier.value = true;
                               isValidInput = false;
                             }
                           });

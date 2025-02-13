@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 
 class DestinationCard extends StatefulWidget {
   final ValueNotifier timeValueNotifier;
-  const DestinationCard(this.timeValueNotifier, {super.key,});
+  final ValueNotifier validNotifier;
+  const DestinationCard(this.timeValueNotifier, this.validNotifier, {super.key,});
 
   @override
   State<StatefulWidget> createState() => _DestinationCardState();
@@ -83,8 +84,10 @@ class _DestinationCardState extends State<DestinationCard> {
                           setState(() {
                             if (nValue != null && nValue >= 0 && nValue <= 90) {
                               isValidInput = true;
+                              widget.validNotifier.value = true;
                               widget.timeValueNotifier.value = nValue;
                             } else {
+                              widget.validNotifier.value = false;
                               isValidInput = false;
                             }
                           });

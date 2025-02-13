@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:openid_client/openid_client_io.dart';
-import 'package:tacc_app/widgets/location_text.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';

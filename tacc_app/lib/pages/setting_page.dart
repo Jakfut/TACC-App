@@ -81,6 +81,9 @@ class _SettingPageState extends State<SettingPage> {
   ValueNotifier destTime = ValueNotifier(0);
   ValueNotifier runTime = ValueNotifier(0);
   ValueNotifier bufferTime = ValueNotifier(0);
+  ValueNotifier destValidNotifier = ValueNotifier(true);
+  ValueNotifier runValidNotifier = ValueNotifier(true);
+  ValueNotifier arrivalValidNotifier = ValueNotifier(true);
 
   void changeState() {
     setState(() {});
@@ -114,10 +117,10 @@ class _SettingPageState extends State<SettingPage> {
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Ubuntu')),
-                      DestinationCard(destTime),
-                      RuntimeCard(runTime),
-                      ArrivalBufferCard(bufferTime),
-                      SaveButton(destTime, runTime, bufferTime, widget.c),
+                      DestinationCard(destTime, destValidNotifier),
+                      RuntimeCard(runTime, runValidNotifier),
+                      ArrivalBufferCard(bufferTime, arrivalValidNotifier),
+                      SaveButton(destTime, runTime, bufferTime, destValidNotifier, runValidNotifier, arrivalValidNotifier, widget.c),
                       const SizedBox(height: 50),
                       const Text("Account",
                           style: TextStyle(
