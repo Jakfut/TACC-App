@@ -20,6 +20,14 @@ class _LocationTextState extends State<LocationText>{
   }
 
   Future<void> fetchInfo() async {
+    bool requestCompleted = false;
+    Future.delayed(Duration(seconds: 10), () {
+      if (!requestCompleted && mounted) {
+        setState(() {
+          location = '';
+        });
+      }
+    });
     var userInfo = await widget.c.getUserInfo();
     String userId = userInfo.subject;
     var authToken = await widget.c.getTokenResponse();
@@ -43,6 +51,7 @@ class _LocationTextState extends State<LocationText>{
       });
       //throw Exception(response.statusCode);
     }
+    requestCompleted = true;
   }
 
   @override

@@ -95,8 +95,8 @@ class _TeslaSettingPageState extends State<TeslaSettingPage> {
     });
   }
 
-  ValueNotifier vin = ValueNotifier(0);
-  ValueNotifier accessToken = ValueNotifier(0);
+  ValueNotifier vin = ValueNotifier("");
+  ValueNotifier accessToken = ValueNotifier("");
   ValueNotifier<bool> _connected = ValueNotifier(false);
 
   @override
@@ -114,8 +114,8 @@ class _TeslaSettingPageState extends State<TeslaSettingPage> {
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else if (snapshot.hasData) {
-                vin.value = snapshot.data!.vin;
                 accessToken.value = snapshot.data!.accessToken;
+                vin.value = snapshot.data!.vin;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

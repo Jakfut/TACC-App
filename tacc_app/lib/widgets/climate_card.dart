@@ -26,6 +26,16 @@ class _ClimateCardState extends State<ClimateCard>{
   }
 
   Future<void> fetchInfo() async {
+    bool requestCompleted = false;
+    Future.delayed(Duration(seconds: 10), () {
+      if (!requestCompleted && mounted) {
+        setState(() {
+          cstatusText = "No connection";
+          cstatusColor = const Color(0xFFD55A5A);
+          bText = "...";
+        });
+      }
+    });
     var userInfo = await widget.c.getUserInfo();
     String userId = userInfo.subject;
     var authToken = await widget.c.getTokenResponse();
@@ -57,6 +67,7 @@ class _ClimateCardState extends State<ClimateCard>{
       cstatusColor = const Color(0xFFD55A5A);
       bText = "Turn on";
     }
+    requestCompleted = true;
   }
 
   void changeState(){

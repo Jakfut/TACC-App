@@ -97,7 +97,7 @@ class _SaveNewButtonState extends State<SaveNewButton> {
           activateConnection();
         },
         child: const Text(
-          "SaveNew",
+          "Save New",
           style: TextStyle(
             fontSize: 16,
             fontFamily: 'Inter',

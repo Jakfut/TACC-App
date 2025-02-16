@@ -25,14 +25,23 @@ class _TeslaStatusState extends State<TeslaStatus>{
   }
 
   Future<void> fetchInfo() async {
+    bool requestCompleted = false;
+    Future.delayed(Duration(seconds: 10), () {
+      if (!requestCompleted && mounted) {
+        setState(() {
+          tstatusText = "No connection";
+          tstatusColor = const Color(0xFFD55A5A);
+        });
+      }
+    });
+
     var userInfo = await widget.c.getUserInfo();
     String userId = userInfo.subject;
     var authToken = await widget.c.getTokenResponse();
-    String? accessToken = authToken.accessToken;
     final response = await http.get(Uri.parse(
         'https://tacc.jakfut.at/api/user/$userId/tesla/reachable'),
         headers: {
-          'Authorization': 'Bearer ${accessToken}', 
+          'Authorization': 'Bearer ${authToken.accessToken}', 
         },
         );
 
@@ -57,6 +66,7 @@ class _TeslaStatusState extends State<TeslaStatus>{
       tstatusColor = const Color(0xFFD55A5A);
       //throw Exception('Failed to load tesla availability');
     }
+    requestCompleted = true;
   }
   
   @override

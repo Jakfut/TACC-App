@@ -231,6 +231,17 @@ class _UpcomingActivationsState extends State<UpcomingActivations> {
                                         size: 24.0 * 1.5,
                                       ),
                                       const SizedBox(width: 8.0),*/
+
+                                      /*Text('Event Location: ${activation.eventLocation}'),
+                                    Text('Arrival Time: ${activation.arrivalTime}'),
+                                    Text('Event Start Time: ${activation.eventStartTime}'),
+                                    Text('Travel Time: ${activation.travelTimeMinutes} minutes'),*/
+                                    ],
+                                  ),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
                                       Text(
                                         '${formatTime(activation.isActivateAc.toString())}',
                                         style: const TextStyle(
@@ -248,11 +259,6 @@ class _UpcomingActivationsState extends State<UpcomingActivations> {
                                             fontWeight: FontWeight.bold,
                                             fontFamily: 'Inter'),
                                       ),
-
-                                      /*Text('Event Location: ${activation.eventLocation}'),
-                                    Text('Arrival Time: ${activation.arrivalTime}'),
-                                    Text('Event Start Time: ${activation.eventStartTime}'),
-                                    Text('Travel Time: ${activation.travelTimeMinutes} minutes'),*/
                                     ],
                                   ),
                                   /*const SizedBox(height: 4.0),

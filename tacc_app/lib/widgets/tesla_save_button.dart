@@ -15,6 +15,8 @@ class SaveButton extends StatefulWidget {
 class _SaveButtonState extends State<SaveButton> {
 
   Future<void> updateUserInfo() async {
+    //print(widget.vinNotifier.value);
+    //print(widget.accessTokenNotifier.value);
     var userInfo = await widget.c.getUserInfo();
     String userId = userInfo.subject;
     var authToken = await widget.c.getTokenResponse();
