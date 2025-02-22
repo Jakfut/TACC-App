@@ -16,6 +16,7 @@ class _ClimateCardState extends State<ClimateCard>{
   var cstatusText = "Loading ...";
   var cstatusColor = Color(0xFFD4A45A);
   var bText = "...";
+  var _isLoading = false;
 
   var climate = false;
 
@@ -70,10 +71,63 @@ class _ClimateCardState extends State<ClimateCard>{
     requestCompleted = true;
   }
 
-  void changeState(){
-    setState(() {
+  Future<void> changeState() async {
+    if (_isLoading) return;
 
+    setState(() {
+      _isLoading = true;
     });
+
+    var userInfo = await widget.c.getUserInfo();
+    String userId = userInfo.subject;
+    var authToken = await widget.c.getTokenResponse();
+
+    bool newState = !climate;
+
+    final Uri apiUrl = Uri.parse(
+        'https://tacc.jakfut.at/api/user/$userId/tesla/climate/state');
+
+    try {
+      final response = await http.patch(
+        apiUrl,
+        headers: {
+          'Content-Type': 'application/json', // Correct Content-Type
+          'Authorization': 'Bearer ${authToken.accessToken}',
+        },
+        body: jsonEncode(newState), // Correctly JSON-encode the boolean
+      );
+
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        setState(() {
+          climate = newState;
+          cstatusText = climate ? "Active" : "Inactive";
+          cstatusColor =
+              climate ? const Color(0xFF66B58C) : const Color(0xFFD55A5A);
+          bText = climate ? "Turn off" : "Turn on";
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Climate control updated!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Failed to update climate control. Status code: ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      print('Error changing climate state: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -104,11 +158,17 @@ class _ClimateCardState extends State<ClimateCard>{
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF8EBBFF)
-               ),
-              onPressed: changeState,
-              child: Text(bText,
-              style: const TextStyle(fontSize: 16, fontFamily: 'Inter', fontWeight: FontWeight.bold),),
+                  backgroundColor: const Color(0xFF8EBBFF)),
+              onPressed: _isLoading ? null : changeState, // Disable when loading
+              child: _isLoading
+                ? CircularProgressIndicator(color: Colors.white)
+                : Text(
+                    bText,
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.bold),
+                  ),
             ),
           ],
         ),
