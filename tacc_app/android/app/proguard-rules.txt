@@ -1,0 +1,5 @@
+-keep class com.google.errorprone.** { *; }
+-dontwarn com.google.errorprone.**
+
+-keep class javax.annotation.** { *; }
+-dontwarn javax.annotation.**
