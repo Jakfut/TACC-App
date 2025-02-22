@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="tacc_app"
+        android:label="Model CC"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

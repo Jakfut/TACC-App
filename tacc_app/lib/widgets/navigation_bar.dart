@@ -14,14 +14,12 @@ class Navigation extends StatefulWidget {
 }
 
 class _NavigationState extends State<Navigation> {
-  var selectedIndex = 0; 
+  var selectedIndex = 0;
   var isVisible = false;
   var appBar = true;
 
-  void changeState(){
-    setState(() {
-      
-    });
+  void changeState() {
+    setState(() {});
   }
 
   @override
@@ -43,110 +41,140 @@ class _NavigationState extends State<Navigation> {
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
-    
+
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
         body: Stack(
           children: [
-            Column(
-              children: [
-                AppBar( 
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  centerTitle: true,
-                  title: Transform.scale(
-                    scale: 0.8, 
-                    child: const Image(
-                      image: AssetImage('assets/Icon_text_right.png'),
-                      fit: BoxFit.contain,
+            GestureDetector(
+              onTap: () {
+                if (isVisible) {
+                  setState(() {
+                    isVisible = false;
+                    appBar = true;
+                  });
+                }
+              },
+              child: Column(
+                children: [
+                  AppBar(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    centerTitle: true,
+                    title: Transform.scale(
+                      scale: 0.8,
+                      child: const Image(
+                        image: AssetImage('assets/Icon_text_right.png'),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    leading: IconButton(
+                      icon: Icon(appBar ? Icons.menu : Icons.close),
+                      onPressed: () {
+                        setState(() {
+                          if (appBar) {
+                            isVisible = true;
+                          } else {
+                            selectedIndex = 0;
+                            isVisible = false;
+                            appBar = true;
+                          }
+                        });
+                      },
                     ),
                   ),
-                  leading: IconButton( 
-                    icon: Icon(appBar ? Icons.menu : Icons.close),
-                    onPressed: () {
-                      setState(() {
-                        if (appBar) {
-                          isVisible = true;
-                        } else {
-                          selectedIndex = 0;
-                          isVisible = false;
-                          appBar = true;
-                        }
-                      });
-                      changeState();
-                    }
+                  Expanded(
+                    child: Container(
+                      color: Theme.of(context).colorScheme.primary,
+                      child: page,
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: Container(
-                    color: Theme.of(context).colorScheme.primary,
-                    child: page,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-            
-            if(isVisible)
+            if (isVisible)
               Positioned(
                 top: 0,
                 left: 0,
-                child: Container(
-                  width: constraints.maxWidth * 0.8,
-                  height: MediaQuery.of(context).size.height,
-                  child: Material(
-                    color: Theme.of(context).colorScheme.surface,
-                    child: Column(
-                      children: [
-                        //SizedBox(height: kToolbarHeight),
-                        Expanded(
-                          child: NavigationRail(
-                            extended: isVisible,
-                            backgroundColor: Colors.transparent,
-                            labelType: NavigationRailLabelType.none,
-                            selectedLabelTextStyle: TextStyle(
-                              color: Color(0xFFFBFCFE), 
-                              fontSize: 12, 
-                              fontWeight: FontWeight.bold, 
-                              fontFamily: 'Inter'
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isVisible = false;
+                      appBar = true;
+                    });
+                  },
+                  child: Container(
+                    width: constraints.maxWidth,
+                    height: MediaQuery.of(context).size.height,
+                    color: Colors.black
+                        .withOpacity(0.5), // Optional: Dunkler Hintergrund
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        width: constraints.maxWidth * 0.8,
+                        height: MediaQuery.of(context).size.height,
+                        color: Theme.of(context).colorScheme.surface,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: NavigationRail(
+                                extended: isVisible,
+                                backgroundColor: Colors.transparent,
+                                labelType: NavigationRailLabelType.none,
+                                selectedLabelTextStyle: TextStyle(
+                                  color: Color(0xFFFBFCFE),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Inter',
+                                ),
+                                unselectedLabelTextStyle: TextStyle(
+                                  color: Color(0xFFFBFCFE),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Inter',
+                                ),
+                                useIndicator: false,
+                                destinations: const <NavigationRailDestination>[
+                                  NavigationRailDestination(
+                                    icon: Icon(Icons.backspace,
+                                        color: Color(0xFF8EBBFF),
+                                        size: 24.0 * 1.5),
+                                    label: Text(''),
+                                  ),
+                                  
+                                  NavigationRailDestination(
+                                    icon: Icon(Icons.settings,
+                                        color: Color(0xFFFBFCFE),
+                                        size: 24.0 * 1.5),
+                                    label: Text('Settings'),
+                                  ),
+                                  NavigationRailDestination(
+                                    icon: Icon(Icons.car_rental,
+                                        color: Color(0xFFFBFCFE),
+                                        size: 24.0 * 1.5),
+                                    label: Text('Tesla setup'),
+                                  ),
+                                  NavigationRailDestination(
+                                    icon: Icon(Icons.calendar_month,
+                                        color: Color(0xFFFBFCFE),
+                                        size: 24.0 * 1.5),
+                                    label: Text('Calendar setup'),
+                                  ),
+                                ],
+                                selectedIndex: selectedIndex,
+                                onDestinationSelected: (value) {
+                                  setState(() {
+                                    selectedIndex = value;
+                                    isVisible = false;
+                                    if (value != 0) {
+                                      appBar = false;
+                                    }
+                                  });
+                                },
+                              ),
                             ),
-                            unselectedLabelTextStyle: TextStyle(
-                              color: Color(0xFFFBFCFE), 
-                              fontSize: 12, 
-                              fontWeight: FontWeight.bold, 
-                              fontFamily: 'Inter'
-                            ),
-                            useIndicator: false,
-                            destinations: const <NavigationRailDestination>[
-                              NavigationRailDestination(
-                                icon: Icon(Icons.backspace, color: Color(0xFFFBFCFE)),
-                                label: Text(''),
-                              ),
-                              NavigationRailDestination(
-                                icon: Icon(Icons.settings, color: Color(0xFFFBFCFE)),
-                                label: Text('Settings'),
-                              ),
-                              NavigationRailDestination(
-                                icon: Icon(Icons.car_rental, color: Color(0xFFFBFCFE)),
-                                label: Text('Tesla setup'),
-                              ),
-                              NavigationRailDestination(
-                                icon: Icon(Icons.calendar_month, color: Color(0xFFFBFCFE)),
-                                label: Text('Calendar setup'),
-                              ),
-                            ],
-                            selectedIndex: selectedIndex,
-                            onDestinationSelected: (value) {
-                              setState(() {
-                                selectedIndex = value;
-                                isVisible = false;
-                                if(value != 0) {
-                                  appBar = false;
-                                }
-                              });
-                              changeState();
-                            },
-                          ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
