@@ -15,12 +15,15 @@ class SaveButton extends StatefulWidget {
 class _SaveButtonState extends State<SaveButton> {
 
   Future<void> updateCalendarInfo() async {
+    final String keywordStart = widget.keywordStartNotifier.value;
+    final String keywordEnd = widget.keywordEndNotifier.value;
+
     var userInfo = await widget.c.getUserInfo();
     String userId = userInfo.subject;
     var authToken = await widget.c.getTokenResponse();
     Map<String, dynamic> data = {
-      'keywordStart': widget.keywordStartNotifier.value,
-      'keywordEnd': widget.keywordEndNotifier.value,
+      'keywordStart': keywordStart,
+      'keywordEnd': keywordEnd,
     };
 
     final Uri apiUrl = Uri.parse('https://tacc.jakfut.at/api/user/$userId/calendar-connections/google-calendar'); // Update the API endpoint if needed
