@@ -8,14 +8,9 @@ class KeywordSelect extends StatefulWidget {
   State<StatefulWidget> createState() => _KeywordSelectState();
 }
 
-String _ensureHash(String input) {
-  // Fügt ein `#` hinzu, falls es fehlt
-  return input.startsWith('#') ? input : '#$input';
-}
-
 bool _validateInput(String input) {
   // Überprüft die Eingabe mit dem Regex
-  final regex = RegExp(r'^#[a-zA-Z0-9]{3,5}$');
+  final regex = RegExp(r'[a-zA-Z0-9]{3,8}$');
   return regex.hasMatch(input);
 }
 
@@ -50,14 +45,13 @@ class _KeywordSelectState extends State<KeywordSelect> {
                 fontSize: 16,
                 fontFamily: 'Inter',
               ),
-              hintText: /*vin  != "" ? "Vin($vin)" : */ "#Keyword",
+              hintText: "Keyword Start",
             ),
             onChanged: (newValue) {
-              final formattedValue = _ensureHash(newValue);
               setState(() {
-                isValidInput = _validateInput(formattedValue);
+                isValidInput = _validateInput(newValue);
                 if (isValidInput) {
-                  widget.keywordNotifier.value = formattedValue;
+                  widget.keywordNotifier.value = newValue;
                 }
               });
             });

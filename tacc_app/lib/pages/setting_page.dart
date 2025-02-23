@@ -129,7 +129,7 @@ class _SettingPageState extends State<SettingPage> {
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Ubuntu')),
                       const SignOutButton(),
-                      const DeleteAccountButton(),
+                      DeleteAccountButton(c: widget.c),
                     ],
                   );
                 } else {
