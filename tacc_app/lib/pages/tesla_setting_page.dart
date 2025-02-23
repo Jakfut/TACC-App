@@ -6,7 +6,6 @@ import 'package:tacc_app/widgets/api_select.dart';
 import 'package:tacc_app/widgets/vin.dart';
 import 'package:tacc_app/widgets/access_token.dart';
 import 'package:tacc_app/widgets/tesla_save_button.dart';
-import 'package:tacc_app/widgets/tesla_save_new_button.dart';
 import 'package:tacc_app/widgets/tesla_deactivate_button.dart';
 import 'package:tacc_app/widgets/tesla_activate_button.dart';
 import 'package:http/http.dart' as http;
@@ -95,8 +94,8 @@ class _TeslaSettingPageState extends State<TeslaSettingPage> {
     });
   }
 
-  ValueNotifier vin = ValueNotifier("");
-  ValueNotifier accessToken = ValueNotifier("");
+  ValueNotifier<String> vin = ValueNotifier("");
+  ValueNotifier<String> accessToken = ValueNotifier("");
   ValueNotifier<bool> _connected = ValueNotifier(false);
 
   @override
@@ -107,100 +106,61 @@ class _TeslaSettingPageState extends State<TeslaSettingPage> {
         padding: EdgeInsets.symmetric(
             horizontal: MediaQuery.of(context).size.width * 0.075),
         child: FutureBuilder<TeslaInfo?>(
-            future: teslaInfo,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (snapshot.hasData) {
-                accessToken.value = snapshot.data!.accessToken;
-                vin.value = snapshot.data!.vin;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Tesla setup",
-                        style: TextStyle(
-                            color: Color(0xFFFBFCFE),
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Ubuntu')),
-                    SizedBox(height: 40),
-                    APISelect(),
-                    SizedBox(height: 40),
-                    VIN(vin),
-                    SizedBox(height: 30),
-                    AccessToken(accessToken),
-                    SizedBox(height: 40),
-                    SaveButton(vin, accessToken, widget.c),
-                    SizedBox(height: 40),
+          future: teslaInfo,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Tesla setup",
+                      style: TextStyle(
+                          color: Color(0xFFFBFCFE),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Ubuntu')),
+                  const SizedBox(height: 40),
+                  const APISelect(),
+                  const SizedBox(height: 40),
+                  VIN(vin),
+                  const SizedBox(height: 30),
+                  AccessToken(accessToken),
+                  const SizedBox(height: 40),
 
-                    ValueListenableBuilder<bool>(
-                      valueListenable: _connected,
-                      builder: (context, connected, child) {
-                        if (connected) {
-                          return DeactivateButton(widget.c, _connected);
-                        } else {
-                          return ActivateButton(widget.c, _connected);
-                        }
-                      },
-                    )
-
-                    /*FutureBuilder<String?>(
-                      future: connected,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
-                        } else if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        } else if (snapshot.hasData && snapshot.data != null) {
-                          // connectedType is available; show DeactivateButton
-                          return DeactivateButton(userId);
-                        } else {
-                          // connectedType is null; show ActivateButton
-                          return ActivateButton(userId);
-                        }
-                      },
-                    ),*/
+                    if(snapshot.hasData) ...[
+                      SaveTeslaConnectionButton( // Use the unified button
+                        vinNotifier: vin,
+                        accessTokenNotifier: accessToken,
+                        c: widget.c,
+                        saveType: SaveType.save, // Existing connection
+                      ),
+                  ] else ...[
+                    SaveTeslaConnectionButton( // Use the unified button
+                      vinNotifier: vin,
+                      accessTokenNotifier: accessToken,
+                      c: widget.c,
+                      saveType: SaveType.saveNew, // New Connection
+                    ),
                   ],
-                );
-              } else {
-                vin.value = "";
-                accessToken.value = "";
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Tesla setup",
-                        style: TextStyle(
-                            color: Color(0xFFFBFCFE),
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Ubuntu')),
-                    SizedBox(height: 40),
-                    APISelect(),
-                    SizedBox(height: 40),
-                    VIN(vin),
-                    SizedBox(height: 30),
-                    AccessToken(accessToken),
-                    SizedBox(height: 40),
-                    SaveNewButton(vin, accessToken, widget.c),
-                    SizedBox(height: 40),
-
-                    ValueListenableBuilder<bool>(
-                      valueListenable: _connected,
-                      builder: (context, connected, child) {
-                        if (connected) {
-                          return DeactivateButton(widget.c, _connected);
-                        } else {
-                          return ActivateButton(widget.c, _connected);
-                        }
-                      },
-                    )
-                  ],
-                );
-              }
-            }),
+                  const SizedBox(height: 40),
+                  ValueListenableBuilder<bool>(
+                        valueListenable: _connected,
+                        builder: (context, connected, child) {
+                          if (connected) {
+                            return DeactivateButton(widget.c, _connected);
+                          } else {
+                            return ActivateButton(widget.c, _connected);
+                          }
+                        },
+                      )
+                ],
+              );
+            }
+          },
+        ),
       ),
     );
   }
