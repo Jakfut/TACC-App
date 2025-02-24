@@ -4,8 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:openid_client/openid_client_io.dart';  
 
 class SaveNewButton extends StatefulWidget {
-  final ValueNotifier keywordStartNotifier;
-  final ValueNotifier keywordEndNotifier;
+  final ValueNotifier<String> keywordStartNotifier;
+  final ValueNotifier<String> keywordEndNotifier;
   final Credential c;
   const SaveNewButton(this.keywordStartNotifier, this.keywordEndNotifier, this.c, {super.key,});
   @override
@@ -13,7 +13,6 @@ class SaveNewButton extends StatefulWidget {
 }
 
 class _SaveNewButtonState extends State<SaveNewButton> {
-
   Future<void> updateCalendarInfo() async {
     final String keywordStart = widget.keywordStartNotifier.value;
     final String keywordEnd = widget.keywordEndNotifier.value;

@@ -96,8 +96,8 @@ class _CalendarSettingPageState extends State<CalendarSettingPage> {
     });
   }
 
-  ValueNotifier keywordStart = ValueNotifier("");
-  ValueNotifier keywordEnd = ValueNotifier("");
+  final keywordStart = ValueNotifier<String>("");
+  final keywordEnd = ValueNotifier<String>("");
 
   void changeState() {
     setState(() {});

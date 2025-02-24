@@ -4,8 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:openid_client/openid_client_io.dart';  
 
 class SaveButton extends StatefulWidget {
-  final ValueNotifier keywordStartNotifier;
-  final ValueNotifier keywordEndNotifier;
+  final ValueNotifier<String> keywordStartNotifier;
+  final ValueNotifier<String> keywordEndNotifier;
   final Credential c;
   const SaveButton(this.keywordStartNotifier, this.keywordEndNotifier, this.c, {super.key,});
   @override
